@@ -1,6 +1,7 @@
 package db
 
 import (
+    "os"
     "fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -9,8 +10,8 @@ import (
 var ORM *gorm.DB
 
 func InitDB() *gorm.DB {
-	const user = "root"
-	const pass = ""
+	user := os.Getenv("MANGANOW_MYSQL_USER")
+	pass := os.Getenv("MANGANOW_MYSQL_PASS")
 	path := fmt.Sprintf("%s:%s@/manganow?charset=utf8&parseTime=True&loc=Local", user, pass)
 	db, err := gorm.Open("mysql", path)
 	if err != nil {

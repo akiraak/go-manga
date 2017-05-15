@@ -2,8 +2,7 @@ package main
 
 import (
 	"errors"
-	_ "os"
-	_ "io/ioutil"
+	"os"
 	"log"
 	"strings"
 	"strconv"
@@ -153,9 +152,9 @@ func getAsins(dummy bool) []Asin {
 
 func getXml(asins []Asin) (xmlString string, err error)  {
 	var api amazonproduct.AmazonProductAPI
-	api.AccessKey = ""
-	api.SecretKey = ""
-	api.AssociateTag = ""
+	api.AccessKey = os.Getenv("MANGANOW_AMAZON_ACCESS_KEY")
+	api.SecretKey = os.Getenv("MANGANOW_AMAZON_SECRET_KEY")
+	api.AssociateTag = os.Getenv("MANGANOW_AMAZON_ASSOCIATE_TAG")
 	api.Host = "ecs.amazonaws.jp"
 	asinStrings := []string{}
 	for _, asin := range asins {
