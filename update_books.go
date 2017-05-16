@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"os"
+	"io"
 	"log"
 	"strings"
 	"strconv"
@@ -298,10 +299,23 @@ func updateDb(books []Book) {
 	}
 }
 
+func initLog() *os.File {
+	filePath := os.Getenv("MANGANOW_UPDATING_BOOK_LOG_FILE")
+	f, err := os.OpenFile(filePath, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	if err != nil {
+		log.Panic("error opening file: %v", err)
+	}
+	log.SetOutput(io.MultiWriter(f, os.Stdout))
+	return f
+}
+
 func main() {
 	db.ORM = db.InitDB()
 	defer db.ORM.Close()
 	//db.ORM.LogMode(true)
+
+	logFile := initLog()
+	defer logFile.Close()
 
 	asins := getAsins(false)
 	books := getBooksInfo(asins)
