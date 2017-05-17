@@ -5,6 +5,7 @@ import (
 	"os"
 	"io"
 	"log"
+	"net/http"
 	"strings"
 	"strconv"
 	"fmt"
@@ -19,6 +20,19 @@ import (
 const updateBookInterval = time.Duration(12) * time.Hour
 //const updateBookInterval = time.Duration(1) * time.Minute
 var url2AsinReg = regexp.MustCompile(`/dp/(\w+)`)
+
+
+func httpGet(url string) (*http.Response, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return &http.Response{}, err
+	}
+	//userAgent := "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8) AppleWebKit/536.25 (KHTML, like Gecko) Version/6.0 Safari/536.25"
+	userAgent := "Linux (wget)"
+	req.Header.Set("User-Agent", userAgent)
+	return client.Do(req)
+}
 
 func url2Asin(url string) (string, error) {
 	result := url2AsinReg.FindAllStringSubmatch(url, 1)
@@ -41,12 +55,15 @@ func (a Asin) SubAsinsColString() string {
 func getUrlAsins(url string) []Asin {
 	var bookAsins []Asin
 	for i := 0; i < 10; i++ {
-		doc, err := goquery.NewDocument(url)
+		resp, err := httpGet(url)
+		time.Sleep(10 * time.Second)
 		if err != nil {
-			return bookAsins
+			continue
 		}
-		body, _ := doc.Find("html").Html()
-		ioutil.WriteFile("./body.html", []byte(body), os.ModePerm)
+		doc, err := goquery.NewDocumentFromResponse(resp)
+		if err != nil {
+			continue
+		}
 		doc.Find(".s-result-item").Each(func(i int, book *goquery.Selection) {
 			asins := []string{}
 			book.Find("a").Each(func(i int, a *goquery.Selection) {
@@ -82,7 +99,6 @@ func getUrlAsins(url string) []Asin {
 				break
 			} else {
 				log.Printf("Error. There aren't books. count:%d\n", i)
-				time.Sleep(2 * time.Second)
 				continue
 			}
 		} else {
