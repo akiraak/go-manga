@@ -40,41 +40,55 @@ func (a Asin) SubAsinsColString() string {
 
 func getUrlAsins(url string) []Asin {
 	var bookAsins []Asin
-	//bookUrls := []string{}
-	doc, err := goquery.NewDocument(url)
-	if err != nil {
-		return bookAsins
-	}
-	doc.Find(".s-result-item").Each(func(i int, book *goquery.Selection) {
-		asins := []string{}
-		book.Find("a").Each(func(i int, a *goquery.Selection) {
-			url, exists := a.Attr("href")
-			if exists {
-				asin, err := url2Asin(url)
-				if err == nil {
-					asins = append(asins, asin)
+	for i := 0; i < 10; i++ {
+		doc, err := goquery.NewDocument(url)
+		if err != nil {
+			return bookAsins
+		}
+		body, _ := doc.Find("html").Html()
+		ioutil.WriteFile("./body.html", []byte(body), os.ModePerm)
+		doc.Find(".s-result-item").Each(func(i int, book *goquery.Selection) {
+			asins := []string{}
+			book.Find("a").Each(func(i int, a *goquery.Selection) {
+				url, exists := a.Attr("href")
+				if exists {
+					asin, err := url2Asin(url)
+					if err == nil {
+						asins = append(asins, asin)
+					}
+				}
+			})
+			asins = unique(asins)
+
+			// Make main and sub asin
+			if len(asins) > 0 {
+				// Main book
+				subAsins := []string{}
+				if len(asins) > 1 {
+					subAsins = asins[1:]
+				}
+				bookAsins = append(bookAsins, Asin{Type:"main", Asin:asins[0], SubAsins:subAsins})
+
+				// Sub book
+				if len(asins) > 1 {
+					for _, asin := range asins[1:] {
+						bookAsins = append(bookAsins, Asin{Type:"sub", Asin:asin})
+					}
 				}
 			}
 		})
-		asins = unique(asins)
-
-		// Make main and sub asin
-		if len(asins) > 0 {
-			// Main book
-			subAsins := []string{}
-			if len(asins) > 1 {
-				subAsins = asins[1:]
+		if len(bookAsins) == 0 {
+			if doc.Find("#noResultsTitle").Length() != 0 {
+				break
+			} else {
+				log.Printf("Error. There aren't books. count:%d\n", i)
+				time.Sleep(2 * time.Second)
+				continue
 			}
-			bookAsins = append(bookAsins, Asin{Type:"main", Asin:asins[0], SubAsins:subAsins})
-
-			// Sub book
-			if len(asins) > 1 {
-				for _, asin := range asins[1:] {
-					bookAsins = append(bookAsins, Asin{Type:"sub", Asin:asin})
-				}
-			}
+		} else {
+			break
 		}
-	})
+	}
 	return bookAsins
 }
 
