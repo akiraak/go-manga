@@ -28,7 +28,6 @@ func httpGet(url string) (*http.Response, error) {
 	if err != nil {
 		return &http.Response{}, err
 	}
-	//userAgent := "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8) AppleWebKit/536.25 (KHTML, like Gecko) Version/6.0 Safari/536.25"
 	userAgent := "Linux (wget)"
 	req.Header.Set("User-Agent", userAgent)
 	return client.Do(req)

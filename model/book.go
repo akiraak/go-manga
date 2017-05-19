@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 	"strings"
 )
@@ -30,6 +31,10 @@ type Book struct {
 
 	Publisher		Publisher
 	Author			Author
+}
+
+func (b Book) Url() string {
+	return fmt.Sprintf("http://amazon.jp/o/ASIN/%s", b.Asin)
 }
 
 func (b Book) SubAsins() []string {
