@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"fmt"
 	"net/http"
 	"log"
@@ -10,6 +11,7 @@ import (
 	"time"
 	"html/template"
 	"path/filepath"
+	"os"
 )
 
 func month2int(m time.Month) int {
@@ -38,9 +40,23 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func initLog() *os.File {
+	filePath := os.Getenv("MANGANOW_LOG_FILE")
+	f, err := os.OpenFile(filePath, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	if err != nil {
+		log.Panicf("Error opening:%v", err)
+	}
+	log.SetOutput(io.MultiWriter(f, os.Stdout))
+	return f
+}
+
 func main() {
+	logFile := initLog()
+	defer logFile.Close()
+
 	db.ORM = db.InitDB()
 	defer db.ORM.Close()
+	//db.ORM.LogMode(true)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", index)
