@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"log"
 	"github.com/gorilla/mux"
@@ -23,8 +24,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	now := time.Now().In(jst)
 	param := Param{Date: now}
-	datePublish := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, jst)
-	log.Println(datePublish)
+	datePublish := fmt.Sprintf("%d-%d-%d", now.Year(), now.Month(), now.Day())
 	db.ORM.Where("date_publish = ?", datePublish).Find(&param.Books)
 
 	f := template.FuncMap{

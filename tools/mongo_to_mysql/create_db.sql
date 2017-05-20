@@ -21,7 +21,7 @@ CREATE TABLE manganow.books (
     title TEXT NOT NULL,
     region CHAR(255) NOT NULL,
     kindle BOOLEAN NOT NULL,
-    date_publish DATETIME NOT NULL,
+    date_publish DATE NOT NULL,
     image_s_url CHAR(255) NOT NULL,
     image_s_width INT NOT NULL,
     image_s_height INT NOT NULL,
