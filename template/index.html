@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>新刊コーナー</title>
+    <title>新刊コーナー - 漫画書店</title>
 
     <!-- Bootstrap core CSS -->
     <!-- <link href="../../dist/css/bootstrap.min.css" rel="stylesheet"> -->
@@ -84,14 +84,12 @@
         <div id="books">
           <div class="date">{{.Date.Month | month2int}}月{{.Date.Day}}日</div>
           {{range .Books}}
-          {{if .ImageL_Url}}
           <div class="book">
             <a href="{{.Url}}">
               <img src="{{.ImageL_Url}}" width="140" height="200">
               <div class="book-title">{{.Title}}</div>
             </a>
           </div>
-          {{end}}
           {{end}}
           <div class="claer-both" />
         </div>
