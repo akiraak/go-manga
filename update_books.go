@@ -124,7 +124,7 @@ func unique(values []string) []string {
 
 func getUrl(page int) string {
 	return fmt.Sprintf("%s&page=%d",
-		"https://www.amazon.co.jp/s/ref=sr_pg_2?fst=as%3Aoff&rh=n%3A465392%2Cn%3A%21465610%2Cn%3A466280%2Cn%3A2278488051%2Cp_n_publication_date%3A2285539051%7C2315443051&bbn=2278488051&ie=UTF8&qid=1491933854",
+		"https://www.amazon.co.jp/s/ref=sr_nr_p_n_publication_date_3?fst=as%3Aoff&rh=n%3A465392%2Cn%3A%21465610%2Cn%3A466280%2Cn%3A2278488051%2Cp_n_publication_date%3A2315442051%7C2285539051&bbn=2278488051&ie=UTF8&qid=1495328200",
 		page)
 }
 
@@ -161,7 +161,8 @@ func validAsins(asins []Asin) []Asin {
 func getAsins(dummy bool) []Asin {
 	booksAsins := []Asin{}
 	if dummy {
-		asins := []string {"4799210300","4041055342","4088810716","4063882543","4091895565","478596006X","B06XPZ7VZ1","B06ZYBPLSB","4772811559","B06XPYHDTY","4829685905","4087925161","4758066507","4063959376","B06ZXZXJN1","B071V54538","B06ZY98NMC","B071H6KKBJ"}
+		//asins := []string {"4799210300","4041055342","4088810716","4063882543","4091895565","478596006X","B06XPZ7VZ1","B06ZYBPLSB","4772811559","B06XPYHDTY","4829685905","4087925161","4758066507","4063959376","B06ZXZXJN1","B071V54538","B06ZY98NMC","B071H6KKBJ"}
+		asins := []string {"4820759728"}
 		for _, asin := range asins {
 			booksAsins = append(booksAsins, Asin{Type:"main", Asin:asin})
 		}
@@ -241,7 +242,7 @@ func get10BooksInfo(asins []Asin) ([]Book, int) {
 						book.Publisher.Name = attributes.Find("Publisher").Text()
 						book.Author.Name = attributes.Find("Author").Text()
 						dateStr := attributes.Find("PublicationDate").Text()
-					    jst, _ := time.LoadLocation("Asia/Tokyo")
+						jst, _ := time.LoadLocation("Asia/Tokyo")
 						datePublish, _ := time.ParseInLocation("2006-01-02", dateStr, jst)
 						book.DatePublish = datePublish
 					}

@@ -36,6 +36,9 @@
         white-space: nowrap;
         font-size: 12px;
       }
+      .claer-both {
+        clear: both;
+      }
     -->
     </style>
   </head>
@@ -77,6 +80,7 @@
 
       <div class="starter-template">
         <h1>Bootstrap starter template</h1>
+        {{range .Days}}
         <div id="books">
           <div class="date">{{.Date.Month | month2int}}月{{.Date.Day}}日</div>
           {{range .Books}}
@@ -89,7 +93,9 @@
           </div>
           {{end}}
           {{end}}
+          <div class="claer-both" />
         </div>
+        {{end}}
       </div>
 
     </div><!-- /.container -->

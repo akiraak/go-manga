@@ -2,7 +2,6 @@ package main
 
 import (
 	"io"
-	"fmt"
 	"net/http"
 	"log"
 	"github.com/gorilla/mux"
@@ -19,22 +18,30 @@ func month2int(m time.Month) int {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	type Param struct {
-		Date	time.Time
-		Books	[]Book
-	}
-	jst, _ := time.LoadLocation("Asia/Tokyo")
-	now := time.Now().In(jst)
-	param := Param{Date: now}
-	datePublish := fmt.Sprintf("%d-%d-%d", now.Year(), now.Month(), now.Day())
-	db.ORM.Where("date_publish = ?", datePublish).Find(&param.Books)
-
 	f := template.FuncMap{
 		"month2int": month2int,
 	}
 	files := []string{"template/index.html"}
 	tname := filepath.Base(files[0])
 	tpl, _ := template.New(tname).Funcs(f).ParseFiles(files...)
+
+	type Day struct {
+		Date	time.Time
+		Books	[]Book
+	}
+	type Param struct {
+		Days	[]Day
+	}
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	now := time.Now().In(jst)
+	days := 5
+	param := Param{make([]Day, days)}
+	for i := 0; i < days; i++ {
+		date := now.AddDate(0, 0, -i)
+		param.Days[i].Date = date
+		datePublish := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, jst)
+		db.ORM.Where("date_publish = ?", datePublish).Find(&param.Days[i].Books)
+	}
 	if err := tpl.Execute(w, param); err != nil {
 		log.Println(err)
 	}
