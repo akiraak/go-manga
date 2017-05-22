@@ -13,3 +13,4 @@ import:
 - package: github.com/jinzhu/inflection
 - package: github.com/gorilla/mux
   version: ^1.3.0
+- package: github.com/sourcegraph/go-ses
