@@ -12,7 +12,7 @@ import (
 	"os"
 )
 
-const Title = "漫画書店 ver.ω"
+const Title = "漫画書店 ver.ω."
 
 type BaseParam struct {
 	Title	string
