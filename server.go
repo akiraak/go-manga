@@ -45,6 +45,20 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func logHandler(w http.ResponseWriter, r *http.Request) {
+	type Param struct {
+		BaseParam
+		Logs []UpdateLog
+	}
+	param := Param{BaseParam{Title, "log"}, []UpdateLog{}}
+	db.ORM.Order("date desc").Find(&param.Logs)
+
+	tpl := template.Must(template.ParseFiles("template/base.html", "template/log.html"))
+	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
+		log.Println(err)
+	}
+}
+
 func initLog() *os.File {
 	filePath := os.Getenv("MANGANOW_LOG_FILE")
 	f, err := os.OpenFile(filePath, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
@@ -65,5 +79,6 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler)
+	r.HandleFunc("/log", logHandler)
 	log.Fatal(http.ListenAndServe(":8000", r))
 }

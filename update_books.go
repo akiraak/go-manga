@@ -158,7 +158,7 @@ func validAsins(asins []Asin) []Asin {
 	return validAsins
 }
 
-func getAsins(dummy bool) []Asin {
+func getAsins(dummy bool) ([]Asin, int) {
 	booksAsins := []Asin{}
 	if dummy {
 		//asins := []string {"4799210300","4041055342","4088810716","4063882543","4091895565","478596006X","B06XPZ7VZ1","B06ZYBPLSB","4772811559","B06XPYHDTY","4829685905","4087925161","4758066507","4063959376","B06ZXZXJN1","B071V54538","B06ZY98NMC","B071H6KKBJ"}
@@ -177,8 +177,9 @@ func getAsins(dummy bool) []Asin {
 			}
 		}
 	}
-	booksAsins = validAsins(booksAsins)
-	return booksAsins
+	fetchAsinCount := len(booksAsins)
+	updateAsins := validAsins(booksAsins)
+	return updateAsins, fetchAsinCount
 }
 
 func getXml(asins []Asin) (xmlString string, err error)  {
@@ -339,6 +340,24 @@ func initLog() *os.File {
 	return f
 }
 
+func updateLog(fetchAsinCount, updateAsinCount, updatedBookCount int) {
+	var log UpdateLog
+	now := time.Now()
+	date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	if db.ORM.Where("date = ?", date).Find(&log).RecordNotFound() {
+		log.Date = date
+		log.FetchAsinCount = fetchAsinCount
+		log.UpdateAsinCount = updateAsinCount
+		log.UpdatedBookCount = updatedBookCount
+		db.ORM.Create(&log)
+	} else {
+		log.FetchAsinCount += fetchAsinCount
+		log.UpdateAsinCount += updateAsinCount
+		log.UpdatedBookCount += updatedBookCount
+		db.ORM.Save(&log)
+	}
+}
+
 func main() {
 	logFile := initLog()
 	defer logFile.Close()
@@ -347,10 +366,13 @@ func main() {
 	defer db.ORM.Close()
 	//db.ORM.LogMode(true)
 
-	asins := getAsins(false)
+	asins, fetchAsinCount := getAsins(false)
 	books := getBooksInfo(asins)
 	updateDb(books)
 
-	log.Printf("asins: %d\n", len(asins))
-	log.Printf("books: %d\n", len(books))
+	updateLog(fetchAsinCount, len(asins), len(books))
+
+	log.Printf("fetchAsinCount: %d\n", fetchAsinCount)
+	log.Printf("updateAsinCount: %d\n", len(asins))
+	log.Printf("updatedBookCount: %d\n", len(books))
 }
