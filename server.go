@@ -9,40 +9,38 @@ import (
 	. "github.com/akiraak/go-manga/model"
 	"time"
 	"html/template"
-	"path/filepath"
 	"os"
 )
 
-func month2int(m time.Month) int {
-	return int(m)
+const Title = "漫画書店 ver.ω"
+
+type BaseParam struct {
+	Title	string
+	Nav		string
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
-	f := template.FuncMap{
-		"month2int": month2int,
-	}
-	files := []string{"template/index.html"}
-	tname := filepath.Base(files[0])
-	tpl, _ := template.New(tname).Funcs(f).ParseFiles(files...)
-
+func indexHandler(w http.ResponseWriter, r *http.Request) {
 	type Day struct {
 		Date	time.Time
 		Books	[]Book
 	}
 	type Param struct {
+		BaseParam
 		Days	[]Day
 	}
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	now := time.Now().In(jst)
 	days := 5
-	param := Param{make([]Day, days)}
+	param := Param{BaseParam{Title, "index"}, make([]Day, days)}
 	for i := 0; i < days; i++ {
 		date := now.AddDate(0, 0, -i)
 		param.Days[i].Date = date
 		datePublish := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, jst)
 		db.ORM.Where("date_publish = ?", datePublish).Find(&param.Days[i].Books)
 	}
-	if err := tpl.Execute(w, param); err != nil {
+
+	tpl := template.Must(template.ParseFiles("template/base.html", "template/index.html"))
+	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
 		log.Println(err)
 	}
 }
@@ -66,6 +64,6 @@ func main() {
 	//db.ORM.LogMode(true)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", index)
+	r.HandleFunc("/", indexHandler)
 	log.Fatal(http.ListenAndServe(":8000", r))
 }

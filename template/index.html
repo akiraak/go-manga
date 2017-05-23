@@ -1,112 +1,58 @@
+{{define "title"}}新刊コーナー{{end}}
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{{define "style"}}
+<style type="text/css">
+<!--
+  #books {
+  }
+  #books .date {
+     margin: 16px 0;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  #books .book {
+    list-style-type: none;
+    margin: 0 4px 0 0;
+    float: left;
+    width: 140px;
+    height: 246px;
+  }
+  #books .book img {
+    width: 140px;
+    height: 200px;
+  }
+  #book-info {
+  }
+  #books .book-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .claer-both {
+    clear: both;
+  }
+-->
+</style>
+{{end}}
 
-    <title>新刊コーナー - 漫画書店</title>
+{{define "content"}}
+<div class="container-fluid">
+  {{range .Days}}
+  <div id="books">
+    <div class="date">{{printf "%d月%d日" .Date.Month .Date.Day}}</div>
+    {{range .Books}}
+    <div class="book">
+      <a href="{{.Url}}">
+        <img class="rounded" src="{{.ImageL_Url}}">
+        <div class="book-title">{{.Title}}</div>
+      </a>
+    </div>
+    {{end}}
+    <div class="claer-both" />
+  </div>
+  {{end}}
+</div><!-- /.container -->
+{{end}}
 
-    <!-- Bootstrap core CSS -->
-    <!-- <link href="../../dist/css/bootstrap.min.css" rel="stylesheet"> -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-    <style type="text/css">
-    <!--
-      #books {
-        padding-top: 10px;
-      }
-      #books .date {
-         margin: 16px 0;
-        font-size: 20px;
-        font-weight: bold;
-      }
-      #books .book {
-        list-style-type: none;
-        margin: 0 4px 0 0;
-        float: left;
-        width: 140px;
-        height: 246px;
-      }
-      #book-info {
-
-      }
-      #books .book-title {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        font-size: 12px;
-      }
-      .claer-both {
-        clear: both;
-      }
-    -->
-    </style>
-  </head>
-
-  <body>
-
-    <nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top">
-      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <a class="navbar-brand" href="#">漫画書店</a>
-
-      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="#">新刊コーナー<span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">白泉社</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">冨樫 義博</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">ハーレークイン</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">マイ本棚</a>
-          </li>
-        </ul>
-        <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="text" placeholder="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
-      </div>
-    </nav>
-
-    <div class="container">
-
-      <div class="starter-template">
-        <h1>Bootstrap starter template</h1>
-        {{range .Days}}
-        <div id="books">
-          <div class="date">{{.Date.Month | month2int}}月{{.Date.Day}}日</div>
-          {{range .Books}}
-          <div class="book">
-            <a href="{{.Url}}">
-              <img src="{{.ImageL_Url}}" width="140" height="200">
-              <div class="book-title">{{.Title}}</div>
-            </a>
-          </div>
-          {{end}}
-          <div class="claer-both" />
-        </div>
-        {{end}}
-      </div>
-
-    </div><!-- /.container -->
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
-    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-    <!-- <script src="../../dist/js/bootstrap.min.js"></script> -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <!-- <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script> -->
-  </body>
-</html>
+{{define "script"}}{{end}}
