@@ -15,12 +15,12 @@ CREATE TABLE manganow.authors (
 
 CREATE TABLE manganow.books (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    asin CHAR(191) NOT NULL UNIQUE,
     tree_type ENUM('main','sub') NOT NULL,
+    asin CHAR(191) NOT NULL UNIQUE,
     sub_asins CHAR(255),
+    publish_type CHAR(255),
     title TEXT NOT NULL,
     region CHAR(255) NOT NULL,
-    kindle BOOLEAN NOT NULL,
     date_publish DATETIME NOT NULL,
     image_s_url CHAR(255) NOT NULL,
     image_s_width INT NOT NULL,
@@ -39,4 +39,15 @@ CREATE TABLE manganow.books (
     INDEX(date_publish),
     FOREIGN KEY(publisher_id) REFERENCES publishers(id),
     FOREIGN KEY(author_id) REFERENCES authors(id)
+);
+
+CREATE TABLE manganow.update_logs (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    date DATETIME NOT NULL,
+    fetch_asin_count INT NOT NULL,
+	update_asin_count INT NOT NULL,
+	updated_book_count INT NOT NULL,
+    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL,
+    INDEX(date)
 );

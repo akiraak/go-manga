@@ -15,7 +15,7 @@
     margin: 0 4px 0 0;
     float: left;
     width: 140px;
-    height: 246px;
+    height: 266px;
   }
   #books .book img {
     width: 140px;
@@ -28,9 +28,29 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 12px;
+    margin-top: 4px;
   }
   .claer-both {
     clear: both;
+  }
+  .badge {
+    font-size: 9px;
+    font-weight: 300;
+    color: #fff;
+  }
+  .badge-pill {
+    border-radius: .2rem;
+    padding-right: .2em;
+    padding-left: .2em;
+  }
+  .badge-warning {
+    background-color: #f0bd5e;
+  }
+  .badge-info {
+    background-color: #6bd0ee;
+  }
+  .badge-default {
+    background-color: #838c92;
   }
 -->
 </style>
@@ -45,6 +65,15 @@
     <a href="{{.Url}}">
       <img class="rounded" src="{{.ImageL_Url}}">
       <div class="book-title">{{.Title}}</div>
+      <div>
+        {{if eq .PublishType "Kindle版"}}
+          <span class="badge badge-pill badge-warning">Kindle</span>
+        {{else if eq .PublishType "コミック"}}
+          <span class="badge badge-pill badge-info">{{.PublishType}}</span>
+        {{else}}
+          <span class="badge badge-pill badge-default">{{.PublishType}}</span>
+        {{end}}
+       </div>
     </a>
   </div>
   {{end}}

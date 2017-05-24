@@ -11,9 +11,9 @@ type Book struct {
 	TreeType		string	`gorm:"type: enum('main', 'sub'); default: 'main'"`
 	Asin			string
 	SubAsinsCol		string	`gorm:"column:sub_asins"`
+	PublishType		string
 	Title			string
 	Region			string
-	Kindle			bool
 	DatePublish		time.Time
 	ImageS_Url		string	`gorm:"column:image_s_url"`
 	ImageS_Width	int		`gorm:"column:image_s_width"`

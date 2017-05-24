@@ -161,8 +161,8 @@ func validAsins(asins []Asin) []Asin {
 func getAsins(dummy bool) ([]Asin, int) {
 	booksAsins := []Asin{}
 	if dummy {
-		//asins := []string {"4799210300","4041055342","4088810716","4063882543","4091895565","478596006X","B06XPZ7VZ1","B06ZYBPLSB","4772811559","B06XPYHDTY","4829685905","4087925161","4758066507","4063959376","B06ZXZXJN1","B071V54538","B06ZY98NMC","B071H6KKBJ"}
-		asins := []string {"4820759728"}
+		asins := []string {"4799210300","4041055342","4088810716","4063882543","4091895565","478596006X","B06XPZ7VZ1","B06ZYBPLSB","4772811559","B06XPYHDTY","4829685905","4087925161","4758066507","4063959376","B06ZXZXJN1","B071V54538","B06ZY98NMC","B071H6KKBJ"}
+		//asins := []string {"4820759728"}
 		for _, asin := range asins {
 			booksAsins = append(booksAsins, Asin{Type:"main", Asin:asin})
 		}
@@ -236,9 +236,9 @@ func get10BooksInfo(asins []Asin) ([]Book, int) {
 					book.TreeType = asin.Type
 					book.SubAsinsCol = asin.SubAsinsColString()
 					book.Region = "JP"
-					// TODO: Get book.Kindle
 					attributes := item.Find("ItemAttributes").First()
 					if attributes.Length() > 0 {
+						book.PublishType = attributes.Find("Binding").Text()
 						book.Title = attributes.Find("Title").Text()
 						book.Publisher.Name = attributes.Find("Publisher").Text()
 						book.Author.Name = attributes.Find("Author").Text()

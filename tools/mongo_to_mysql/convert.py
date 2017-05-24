@@ -43,7 +43,7 @@ def conv_books(mongo_books, publisher_ids, author_ids):
                 asin=book['asin'],
                 tree_type=book['tree_type'] if 'tree_type' in book and book['tree_type'] else 'main',
                 sub_asins=','.join(book['sub_asins']) if 'sub_asins' in book and book['sub_asins'] and len(book['sub_asins']) else None,
-                kindle=get_book_kindle(book),
+                publish_type=book['binding'] if 'binding' in book else None,
                 date_publish=book['date_publish'],
                 image_s_url=book['images']['s']['url'],
                 image_s_width=book['images']['s']['size']['width'],
@@ -68,14 +68,6 @@ def conv_books(mongo_books, publisher_ids, author_ids):
 
     print('')
     print('End converting books')
-
-
-def get_book_kindle(book):
-    value = False
-    if 'kindle' in book:
-        if book['kindle'] == 1 or book['kindle'] == True:
-            value = True
-    return value
 
 
 def main():
