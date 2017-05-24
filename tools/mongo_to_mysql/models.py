@@ -30,11 +30,11 @@ class Authors(Model):
 
 class Books(Model):
     id = BigIntegerField()
-    asin = FixedCharField(max_length=255)
     tree_type = FixedCharField(unique=True, max_length=191)
+    asin = FixedCharField(max_length=255)
     sub_asins = FixedCharField(max_length=255)
-    kindle = BooleanField()
     date_publish = DateTimeField()
+    publish_type = FixedCharField(max_length=255)
     image_s_url = FixedCharField(max_length=255)
     image_s_width = IntegerField()
     image_s_height = IntegerField()

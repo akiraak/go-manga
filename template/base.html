@@ -18,6 +18,12 @@
       .container, .container-fluid {
         padding-top: 54px;
       }
+      footer {
+        padding-top: 20px;
+        padding-bottom: 40px;
+        margin-top: 20px;
+        border-top: 1px solid #eee;
+      }
     -->
     </style>
     {{template "style" .}}
@@ -54,7 +60,12 @@
       </div>
     </nav>
 
-    {{template "content" .}}
+    <div class="container-fluid">
+      {{template "content" .}}
+      <footer>
+        <p>Created by <a href="https://github.com/akiraak">akiraak</a>. Github repo is <a href="https://github.com/akiraak/go-manga">akiraak/go-manga</a>.</p>
+      </footer>
+    </div><!-- /.container -->
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
