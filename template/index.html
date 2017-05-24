@@ -70,6 +70,8 @@
           <span class="badge badge-pill badge-warning">Kindle</span>
         {{else if eq .PublishType "コミック"}}
           <span class="badge badge-pill badge-info">{{.PublishType}}</span>
+        {{else if eq .PublishType "単行本（ソフトカバー）"}}
+          <span class="badge badge-pill badge-default">単行本</span>
         {{else}}
           <span class="badge badge-pill badge-default">{{.PublishType}}</span>
         {{end}}
