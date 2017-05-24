@@ -37,22 +37,20 @@
 {{end}}
 
 {{define "content"}}
-<div class="container-fluid">
-  {{range .Days}}
-  <div id="books">
-    <div class="date">{{printf "%d月%d日" .Date.Month .Date.Day}}</div>
-    {{range .Books}}
-    <div class="book">
-      <a href="{{.Url}}">
-        <img class="rounded" src="{{.ImageL_Url}}">
-        <div class="book-title">{{.Title}}</div>
-      </a>
-    </div>
-    {{end}}
-    <div class="claer-both" />
+{{range .Days}}
+<div id="books">
+  <div class="date">{{printf "%d月%d日" .Date.Month .Date.Day}}</div>
+  {{range .Books}}
+  <div class="book">
+    <a href="{{.Url}}">
+      <img class="rounded" src="{{.ImageL_Url}}">
+      <div class="book-title">{{.Title}}</div>
+    </a>
   </div>
   {{end}}
-</div><!-- /.container -->
+  <div class="claer-both" />
+</div>
+{{end}}
 {{end}}
 
 {{define "script"}}{{end}}
