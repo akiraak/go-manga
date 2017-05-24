@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 	"strings"
@@ -24,6 +25,7 @@ type Book struct {
 	ImageL_Url		string	`gorm:"column:image_l_url"`
 	ImageL_Width	int		`gorm:"column:image_l_width"`
 	ImageL_Height	int		`gorm:"column:image_l_height"`
+	Xml				sql.NullString
 	PublisherID		int64
 	AuthorID		int64
 	CreatedAt		time.Time

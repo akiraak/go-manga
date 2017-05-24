@@ -259,6 +259,11 @@ func get10BooksInfo(asins []Asin) ([]Book, int) {
 					book.ImageL_Url = largeImage.Find("URL").Text()
 					book.ImageL_Width, _ = strconv.Atoi(largeImage.Find("Width").Text())
 					book.ImageL_Height, _ = strconv.Atoi(largeImage.Find("Height").Text())
+					xml, err := item.Html()
+					if err == nil {
+						book.Xml.String = "<item>" + xml + "</item>"
+						book.Xml.Valid = true
+					}
 					books = append(books, book)
 					//fmt.Printf("----\n")
 

@@ -31,6 +31,7 @@ CREATE TABLE manganow.books (
     image_l_url CHAR(255) NOT NULL,
     image_l_width INT NOT NULL,
     image_l_height INT NOT NULL,
+    xml TEXT,
     publisher_id BIGINT UNSIGNED,
     author_id BIGINT UNSIGNED,
     updated_at DATETIME NOT NULL,
