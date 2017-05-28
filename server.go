@@ -23,13 +23,16 @@ type BaseParam struct {
 func titleBooks(books []Book) map[int64]*TitleBook {
 	resultBooks := map[int64]*TitleBook{}
 	for _, book := range books {
-		_, exist := resultBooks[book.TitleID]
+		if !book.TitleID.Valid {
+			continue
+		}
+		_, exist := resultBooks[book.TitleID.Int64]
 		if exist {
-			resultBooks[book.TitleID].AddBook(book)
+			resultBooks[book.TitleID.Int64].AddBook(book)
 		} else {
 			tBook := &TitleBook{}
 			tBook.AddBook(book)
-			resultBooks[book.TitleID] = tBook
+			resultBooks[book.TitleID.Int64] = tBook
 		}
 	}
 	return resultBooks

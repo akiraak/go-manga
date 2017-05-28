@@ -18,7 +18,6 @@ import (
 )
 
 const updateBookInterval = time.Duration(12) * time.Hour
-//const updateBookInterval = time.Duration(1) * time.Minute
 var url2AsinReg = regexp.MustCompile(`/dp/(\w+)`)
 
 
@@ -41,18 +40,25 @@ func url2Asin(url string) (string, error) {
 	return "", errors.New("URL does not include asin.")
 }
 
-type Asin struct {
-	Type string
-	Asin string
-	SubAsins []string
+type Asins []string
+
+func (a Asins)Exist(checkAsin string) bool {
+	for _, asin := range a {
+		if asin == checkAsin {
+			return true
+		}
+	}
+	return false
 }
 
-func (a Asin) SubAsinsColString() string {
-	return strings.Join(a.SubAsins, ",")
+type TitleAsin Asins
+
+func (ts *TitleAsin)AddAsins(asins Asins) {
+	*ts = append(*ts, asins...)
 }
 
-func getUrlAsins(url string) []Asin {
-	var bookAsins []Asin
+func getUrlAsins(url string) []*TitleAsin {
+	titleAsins := []*TitleAsin{}
 	for i := 0; i < 10; i++ {
 		resp, err := httpGet(url)
 		time.Sleep(10 * time.Second)
@@ -75,25 +81,11 @@ func getUrlAsins(url string) []Asin {
 				}
 			})
 			asins = unique(asins)
-
-			// Make main and sub asin
-			if len(asins) > 0 {
-				// Main book
-				subAsins := []string{}
-				if len(asins) > 1 {
-					subAsins = asins[1:]
-				}
-				bookAsins = append(bookAsins, Asin{Type:"main", Asin:asins[0], SubAsins:subAsins})
-
-				// Sub book
-				if len(asins) > 1 {
-					for _, asin := range asins[1:] {
-						bookAsins = append(bookAsins, Asin{Type:"sub", Asin:asin})
-					}
-				}
-			}
+			titleAsin := &TitleAsin{}
+			titleAsin.AddAsins(asins)
+			titleAsins = append(titleAsins, titleAsin)
 		})
-		if len(bookAsins) == 0 {
+		if len(titleAsins) == 0 {
 			if doc.Find("#noResultsTitle").Length() != 0 {
 				break
 			} else {
@@ -104,7 +96,7 @@ func getUrlAsins(url string) []Asin {
 			break
 		}
 	}
-	return bookAsins
+	return titleAsins
 }
 
 func unique(values []string) []string {
@@ -128,74 +120,67 @@ func getUrl(page int) string {
 		page)
 }
 
-func validAsins(asins []Asin) []Asin {
+func validAsins(asins []string) []string {
 	checkTime := time.Now()
 	checkTime = checkTime.Add(-updateBookInterval)
-	checkAsins := []string{}
-	for _, asin := range asins {
-		checkAsins = append(checkAsins, asin.Asin)
-	}
 	var excludeBooks []Book
-	db.ORM.Where("asin in (?)", checkAsins).Where("updated_at > ?", checkTime).Find(&excludeBooks)
-	excludeAsins := []string{}
+	db.ORM.Where("asin in (?)", asins).Where("updated_at > ?", checkTime).Find(&excludeBooks)
+	excludeAsins := map[string]int{}
 	for _, book := range excludeBooks {
-		excludeAsins = append(excludeAsins, book.Asin)
+		excludeAsins[book.Asin] = 0
 	}
-	var validAsins []Asin
+	var validAsins []string
 	for _, asin := range asins {
-		valid := true
-		for _, excludeAsin := range excludeAsins {
-			if asin.Asin == excludeAsin {
-				valid = false
-				//fmt.Printf("exclude: %s\n", excludeAsin)
-				break
-			}
-		}
-		if valid {
+		_, exist := excludeAsins[asin]
+		if !exist {
 			validAsins = append(validAsins, asin)
 		}
 	}
 	return validAsins
 }
 
-func getAsins(dummy bool) ([]Asin, int) {
-	booksAsins := []Asin{}
+func getAsins(dummy bool) ([]*TitleAsin, Asins, int) {
+	titleAsins := []*TitleAsin{}
 	if dummy {
 		asins := []string {"4799210300","4041055342","4088810716","4063882543","4091895565","478596006X","B06XPZ7VZ1","B06ZYBPLSB","4772811559","B06XPYHDTY","4829685905","4087925161","4758066507","4063959376","B06ZXZXJN1","B071V54538","B06ZY98NMC","B071H6KKBJ"}
 		//asins := []string {"4820759728"}
 		for _, asin := range asins {
-			booksAsins = append(booksAsins, Asin{Type:"main", Asin:asin})
+			titleAsin := &TitleAsin{}
+			titleAsin.AddAsins([]string{asin})
+			titleAsins = append(titleAsins, titleAsin)
 		}
 	} else {
 		for page := 1; ; page++ {
 			url := getUrl(page)
-			urlAsins := getUrlAsins(url)
-			booksAsins = append(booksAsins, urlAsins...)
-			log.Printf("URL:%s Books:%d\n", url, len(urlAsins))
-			if len(urlAsins) == 0 {
+			urlTitleAsins := getUrlAsins(url)
+			titleAsins = append(titleAsins, urlTitleAsins...)
+			log.Printf("URL:%s Books:%d\n", url, len(urlTitleAsins))
+			if len(urlTitleAsins) == 0 {
 				break
 			}
 		}
 	}
-	fetchAsinCount := len(booksAsins)
-	updateAsins := validAsins(booksAsins)
-	return updateAsins, fetchAsinCount
+	asins := Asins{}
+	for _, titleAsin := range titleAsins {
+		asins = append(asins, *titleAsin...)
+	}
+	asins = unique(asins)
+	fetchAsinCount := len(asins)
+	asins = validAsins(asins)
+	log.Printf("Fetch asin:%d. Update asin:%d", fetchAsinCount, len(asins))
+	return titleAsins, asins, fetchAsinCount
 }
 
-func getXml(asins []Asin) (xmlString string, err error)  {
+func getXml(asins []string) (xmlString string, err error)  {
 	var api amazonproduct.AmazonProductAPI
 	api.AccessKey = os.Getenv("MANGANOW_AMAZON_ACCESS_KEY")
 	api.SecretKey = os.Getenv("MANGANOW_AMAZON_SECRET_KEY")
 	api.AssociateTag = os.Getenv("MANGANOW_AMAZON_ASSOCIATE_TAG")
 	api.Host = "ecs.amazonaws.jp"
-	asinStrings := []string{}
-	for _, asin := range asins {
-		asinStrings = append(asinStrings, asin.Asin)
-	}
 	xmlString, err = api.ItemSearch("", map[string]string{
 		"Operation": "ItemLookup",
 		"IdType": "ASIN",
-		"ItemId": strings.Join(asinStrings, ","),
+		"ItemId": strings.Join(asins, ","),
 		"ResponseGroup": "Medium",
 		"ItemPage": "1",
 	})
@@ -203,17 +188,7 @@ func getXml(asins []Asin) (xmlString string, err error)  {
 	return xmlString, err
 }
 
-func getAsin(asins []Asin, asin string) (Asin, error) {
-	// TODO: Change to method of struct
-	for _, checkAsin := range asins {
-		if checkAsin.Asin == asin {
-			return checkAsin, nil
-		}
-	}
-	return Asin{}, errors.New("Asin does not include Asin array.")
-}
-
-func get10BooksInfo(asins []Asin) ([]Book, int) {
+func get10BooksInfo(asins Asins) ([]Book, int) {
 	books := []Book{}
 	const tryMax = 10
 	countTry := 0
@@ -231,21 +206,18 @@ func get10BooksInfo(asins []Asin) ([]Book, int) {
 			items.Each(func(_ int, item *goquery.Selection) {
 				book := Book{}
 				book.Asin = item.Find("ASIN").Text()
-				asin, err := getAsin(asins, book.Asin)
-				if err == nil {
-					book.TreeType = asin.Type
-					book.SubAsinsCol = asin.SubAsinsColString()
+				if asins.Exist(book.Asin) {
 					book.Region = "JP"
 					attributes := item.Find("ItemAttributes").First()
 					if attributes.Length() > 0 {
 						book.PublishType = attributes.Find("Binding").Text()
-						book.Title = attributes.Find("Title").Text()
+						book.Name = attributes.Find("Title").Text()
 						book.Publisher.Name = attributes.Find("Publisher").Text()
 						book.Author.Name = attributes.Find("Author").Text()
 						dateStr := attributes.Find("PublicationDate").Text()
 						jst, _ := time.LoadLocation("Asia/Tokyo")
 						datePublish, _ := time.ParseInLocation("2006-01-02", dateStr, jst)
-						book.DatePublish = datePublish
+						book.DatePublish = fmt.Sprintf("%d%02d%02d", datePublish.Year(), datePublish.Month(), datePublish.Day())
 					}
 					smallImage := item.Find("SmallImage").First()
 					book.ImageS_Url = smallImage.Find("URL").Text()
@@ -265,9 +237,6 @@ func get10BooksInfo(asins []Asin) ([]Book, int) {
 						book.Xml.Valid = true
 					}
 					books = append(books, book)
-					//fmt.Printf("----\n")
-
-					// TODO: xmlのテキストを取得する
 				}
 			})
 		} else {
@@ -278,7 +247,7 @@ func get10BooksInfo(asins []Asin) ([]Book, int) {
 	return books, countTry + 1
 }
 
-func getBooksInfo(asins []Asin) []Book {
+func getBooksInfo(asins []string) []Book {
 	const maxAsins = 10
 	asinsCount := len(asins)
 	updateCount := 0
@@ -305,33 +274,26 @@ func updateDb(books []Book) {
 		if db.ORM.Where(&Publisher{Name: book.Publisher.Name}).First(&publisher).RecordNotFound() {
 			publisher.Name = book.Publisher.Name
 			db.ORM.Create(&publisher)
-			//fmt.Printf("[Publisher]Create: %+v\n", publisher)
-		} else {
-			//fmt.Printf("[Publisher]Exist : %+v\n", publisher)
 		}
-		book.PublisherID = publisher.ID
+		book.PublisherID.Int64 = publisher.ID
+		book.PublisherID.Valid = true
 
 		var author Author
 		if db.ORM.Where(&Author{Name: book.Author.Name}).First(&author).RecordNotFound() {
 			author.Name = book.Author.Name
 			db.ORM.Create(&author)
-			//fmt.Printf("[Author]Create: %+v\n", author)
-		} else {
-			//fmt.Printf("[Author]Exist : %+v\n", author)
 		}
-		book.AuthorID = author.ID
+		book.AuthorID.Int64 = author.ID
+		book.AuthorID.Valid = true
 
 		var existBook Book
 		if db.ORM.Where(&Book{Asin: book.Asin}).First(&existBook).RecordNotFound() {
 			db.ORM.Set("gorm:save_associations", false).Create(&book)
-			//fmt.Printf("[Book]Create: [%s] %s\n", book.Asin, book.Title)
 		} else {
 			book.ID = existBook.ID
 			book.CreatedAt = existBook.CreatedAt
 			db.ORM.Set("gorm:save_associations", false).Save(&book)
-			//fmt.Printf("[Book]Exist : [%s] %s\n", book.Asin, book.Title)
 		}
-		//fmt.Printf("%#v\n", book.Asin)
 	}
 }
 
@@ -343,6 +305,36 @@ func initLog() *os.File {
 	}
 	log.SetOutput(io.MultiWriter(f, os.Stdout))
 	return f
+}
+
+func updateTitleID(titleAsins []*TitleAsin) {
+	for _, titleAsin := range titleAsins {
+		if len(*titleAsin) == 0 {
+			log.Panic("updateTitleID(): len(*titleAsin) == 0")
+		}
+
+		// Search existing title_id
+		var titleID int64 = 0
+		books := []Book{}
+		if db.ORM.Where("asin IN (?)", *titleAsin).Find(&books).RecordNotFound() {
+			log.Panicf("updateTitleID(): Book does not exist. Asins:%v", *titleAsin)
+		} else {
+			if books[0].TitleID.Valid {
+				titleID = books[0].TitleID.Int64
+			}
+		}
+		if titleID == 0 {
+			// Create title
+			title := Title{}
+			db.ORM.Create(&title)
+			titleID = title.ID
+		}
+
+		// Remove old book's title_id
+		db.ORM.Table("books").Where("title_id = ?", titleID).UpdateColumn("title_id", nil)
+		// Set title_id
+		db.ORM.Table("books").Where("asin IN (?)", *titleAsin).UpdateColumn("title_id", titleID)
+	}
 }
 
 func updateLog(fetchAsinCount, updateAsinCount, updatedBookCount int) {
@@ -371,9 +363,12 @@ func main() {
 	defer db.ORM.Close()
 	//db.ORM.LogMode(true)
 
-	asins, fetchAsinCount := getAsins(false)
+	titleAsins, asins, fetchAsinCount := getAsins(false)
+	log.Printf("TitleAsins:%d asins:%d", len(titleAsins), len(asins))
 	books := getBooksInfo(asins)
+	log.Printf("Book Info:%d", len(books))
 	updateDb(books)
+	updateTitleID(titleAsins)
 
 	updateLog(fetchAsinCount, len(asins), len(books))
 

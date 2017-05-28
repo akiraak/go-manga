@@ -66,20 +66,20 @@
       <a href="{{$tbook.Url}}">
         <img class="rounded" src="{{$tbook.ImageURL}}">
         <div class="book-title">{{$tbook.Name}}</div>
-        <div>
-          {{range $tbook}}
-            {{if eq .PublishType "Kindle版"}}
-              <span class="badge badge-pill badge-warning">Kindle</span>
-            {{else if eq .PublishType "コミック"}}
-              <span class="badge badge-pill badge-info">{{.PublishType}}</span>
-            {{else if eq .PublishType "単行本（ソフトカバー）"}}
-              <span class="badge badge-pill badge-default">単行本</span>
-            {{else}}
-              <span class="badge badge-pill badge-default">{{.PublishType}}</span>
-            {{end}}
-          {{end}}
-         </div>
       </a>
+      <div>
+        {{range $tbook}}
+          {{if eq .PublishType "Kindle版"}}
+            <a href="{{.Url}}"><span class="badge badge-pill badge-warning">Kindle</span></a>
+          {{else if eq .PublishType "コミック"}}
+            <a href="{{.Url}}"><span class="badge badge-pill badge-info">{{.PublishType}}</span></a>
+          {{else if eq .PublishType "単行本（ソフトカバー）"}}
+            <a href="{{.Url}}"><span class="badge badge-pill badge-default">単行本</span></a>
+          {{else}}
+            <a href="{{.Url}}"><span class="badge badge-pill badge-default">{{.PublishType}}</span></a>
+          {{end}}
+        {{end}}
+       </div>
     </div>
     {{end}}
   {{end}}

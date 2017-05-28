@@ -3,7 +3,6 @@ USE manganow;
 
 CREATE TABLE manganow.titles (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name CHAR(191) BINARY NOT NULL,
     created_at DATETIME NOT NULL
 );
 
@@ -21,9 +20,7 @@ CREATE TABLE manganow.authors (
 
 CREATE TABLE manganow.books (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    tree_type ENUM('main','sub') NOT NULL,
     asin CHAR(191) NOT NULL UNIQUE,
-    sub_asins CHAR(255),
     publish_type CHAR(255),
     name TEXT NOT NULL,
     region CHAR(255) NOT NULL,
@@ -43,7 +40,6 @@ CREATE TABLE manganow.books (
     author_id BIGINT UNSIGNED,
     updated_at DATETIME NOT NULL,
     created_at DATETIME NOT NULL,
-    INDEX(tree_type),
     INDEX(date_publish),
     FOREIGN KEY(title_id) REFERENCES titles(id),
     FOREIGN KEY(publisher_id) REFERENCES publishers(id),

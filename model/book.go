@@ -5,14 +5,11 @@ import (
 	"fmt"
 	"time"
 	"sort"
-	"strings"
 )
 
 type Book struct {
 	ID				int64
-	TreeType		string	`gorm:"type: enum('main', 'sub'); default: 'main'"`
 	Asin			string
-	SubAsinsCol		string	`gorm:"column:sub_asins"`
 	PublishType		string
 	Name			string
 	Region			string
@@ -27,9 +24,9 @@ type Book struct {
 	ImageL_Width	int		`gorm:"column:image_l_width"`
 	ImageL_Height	int		`gorm:"column:image_l_height"`
 	Xml				sql.NullString
-	TitleID			int64
-	PublisherID		int64
-	AuthorID		int64
+	TitleID			sql.NullInt64
+	PublisherID		sql.NullInt64
+	AuthorID		sql.NullInt64
 	CreatedAt		time.Time
 	UpdatedAt		time.Time
 
@@ -42,10 +39,6 @@ func (b Book) Url() string {
 	return fmt.Sprintf("http://amazon.jp/o/ASIN/%s", b.Asin)
 }
 
-func (b Book) SubAsins() []string {
-	return strings.Split(b.SubAsinsCol, ",")
-}
-
 type TitleBook []Book
 
 func (tbs *TitleBook) AddBook(book Book) {
@@ -54,7 +47,10 @@ func (tbs *TitleBook) AddBook(book Book) {
 }
 
 func (tbs *TitleBook) PublisherID() int64 {
-	return (*tbs)[0].PublisherID
+	if (*tbs)[0].PublisherID.Valid {
+		return (*tbs)[0].PublisherID.Int64
+	}
+	return 0
 }
 
 func (tbs *TitleBook) Url() string {

@@ -32,8 +32,6 @@ def conv_books(mongo_books, publisher_ids, author_ids):
         for i, book in enumerate(mongo_books):
             Books.create(
                 asin=book['asin'],
-                tree_type=book['tree_type'] if 'tree_type' in book and book['tree_type'] else 'main',
-                sub_asins=','.join(book['sub_asins']) if 'sub_asins' in book and book['sub_asins'] and len(book['sub_asins']) else None,
                 publish_type=book['binding'] if 'binding' in book else None,
                 date_publish='%d%02d%02d' % (book['date_publish'].year, book['date_publish'].month, book['date_publish'].day),
                 image_s_url=book['images']['s']['url'],
@@ -79,7 +77,6 @@ def create_titles(mongo_books, book_ids):
         for i, book in enumerate(mongo_books):
             if not 'tree_type' in book or book['tree_type'] == 'main':
                 Titles.create(
-                    name=book['title'][:191],
                     created_at=datetime.datetime.now()
                 )
                 title_id += 1
