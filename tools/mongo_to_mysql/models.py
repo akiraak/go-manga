@@ -10,6 +10,15 @@ db = MySQLDatabase(
     passwd='')
 
 
+class Titles(Model):
+    id = BigIntegerField(primary_key=True)
+    name = FixedCharField(max_length=191)
+    created_at = DateTimeField()
+
+    class Meta:
+        database = db
+
+
 class Publishers(Model):
     id = BigIntegerField(primary_key=True)
     name = FixedCharField(unique=True, max_length=191)
@@ -33,7 +42,7 @@ class Books(Model):
     tree_type = FixedCharField(unique=True, max_length=191)
     asin = FixedCharField(max_length=255)
     sub_asins = FixedCharField(max_length=255)
-    date_publish = DateTimeField()
+    date_publish = FixedCharField(max_length=8)
     publish_type = FixedCharField(max_length=255)
     image_s_url = FixedCharField(max_length=255)
     image_s_width = IntegerField()
@@ -44,8 +53,9 @@ class Books(Model):
     image_l_url = FixedCharField(max_length=255)
     image_l_width = IntegerField()
     image_l_height = IntegerField()
-    title = TextField()
+    name = TextField()
     region = FixedCharField(max_length=255)
+    book_title = ForeignKeyField(Titles, db_column='title_id', related_name='books')
     publisher = ForeignKeyField(Publishers, related_name='books')
     author = ForeignKeyField(Authors, related_name='books')
     updated_at = DateTimeField()
