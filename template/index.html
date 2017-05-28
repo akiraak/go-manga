@@ -59,23 +59,29 @@
 {{define "content"}}
 {{range .Days}}
 <div id="books">
-  <div class="date">{{printf "%d月%d日" .Date.Month .Date.Day}}</div>
-  {{range .Books}}
-  <div class="book">
-    <a href="{{.Url}}">
-      <img class="rounded" src="{{.ImageL_Url}}">
-      <div class="book-title">{{.Title}}</div>
+  <div class="date">{{printf "%d月%d日発売" .Date.Month .Date.Day}}</div>
+  {{range $pkey, $tbooks := .PublisherBooks}}
+    {{range $tkey, $tbook := $tbooks}}
+    <div class="book">
+      <a href="{{$tbook.Url}}">
+        <img class="rounded" src="{{$tbook.ImageURL}}">
+        <div class="book-title">{{$tbook.Name}}</div>
+      </a>
       <div>
-        {{if eq .PublishType "Kindle版"}}
-          <span class="badge badge-pill badge-warning">Kindle</span>
-        {{else if eq .PublishType "コミック"}}
-          <span class="badge badge-pill badge-info">{{.PublishType}}</span>
-        {{else}}
-          <span class="badge badge-pill badge-default">{{.PublishType}}</span>
+        {{range $tbook}}
+          {{if eq .PublishType "Kindle版"}}
+            <a href="{{.Url}}"><span class="badge badge-pill badge-warning">Kindle</span></a>
+          {{else if eq .PublishType "コミック"}}
+            <a href="{{.Url}}"><span class="badge badge-pill badge-info">{{.PublishType}}</span></a>
+          {{else if eq .PublishType "単行本（ソフトカバー）"}}
+            <a href="{{.Url}}"><span class="badge badge-pill badge-default">単行本</span></a>
+          {{else}}
+            <a href="{{.Url}}"><span class="badge badge-pill badge-default">{{.PublishType}}</span></a>
+          {{end}}
         {{end}}
        </div>
-    </a>
-  </div>
+    </div>
+    {{end}}
   {{end}}
   <div class="claer-both" />
 </div>
