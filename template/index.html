@@ -17,9 +17,22 @@
     width: 140px;
     height: 266px;
   }
-  #books .book img {
+  #books .book a {
+    text-decoration: none;
+  }
+  #books .book .thumbnail {
     width: 140px;
     height: 200px;
+  }
+  #books .book .thumbnail-text {
+    border: 1px solid #ccc;
+    border-radius: .25rem;
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #444;
+    padding: 4px;
   }
   #book-info {
   }
@@ -64,7 +77,11 @@
     {{range $tkey, $tbook := $tbooks}}
     <div class="book">
       <a href="{{$tbook.Url}}">
-        <img class="rounded" src="{{$tbook.ImageURL}}">
+        {{if $tbook.ImageURL}}
+          <img class="thumbnail rounded" src="{{$tbook.ImageURL}}">
+        {{else}}
+          <div class="thumbnail thumbnail-text">{{$tbook.Name}}</div>
+        {{end}}
         <div class="book-title">{{$tbook.Name}}</div>
       </a>
       <div>
