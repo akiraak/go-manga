@@ -56,3 +56,8 @@ CREATE TABLE manganow.update_logs (
     created_at DATETIME NOT NULL,
     INDEX(date)
 );
+
+CREATE TABLE manganow.one (
+    last_update_book_page INT NOT NULL
+);
+INSERT INTO manganow.one (last_update_book_page) VALUES (0);
