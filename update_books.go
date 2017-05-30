@@ -57,8 +57,9 @@ func (ts *TitleAsin)AddAsins(asins Asins) {
 	*ts = append(*ts, asins...)
 }
 
-func getUrlAsins(url string) []*TitleAsin {
+func getUrlAsins(url string) ([]*TitleAsin, error) {
 	titleAsins := []*TitleAsin{}
+	success := false
 	for i := 0; i < 10; i++ {
 		resp, err := httpGet(url)
 		time.Sleep(10 * time.Second)
@@ -87,16 +88,21 @@ func getUrlAsins(url string) []*TitleAsin {
 		})
 		if len(titleAsins) == 0 {
 			if doc.Find("#noResultsTitle").Length() != 0 {
+				success = true
 				break
 			} else {
 				log.Printf("Error. There aren't books. count:%d\n", i)
 				continue
 			}
 		} else {
+			success = true
 			break
 		}
 	}
-	return titleAsins
+	if success {
+		return titleAsins, nil
+	}
+	return titleAsins, errors.New("Cant't fetch url.")
 }
 
 func unique(values []string) []string {
@@ -150,12 +156,19 @@ func getAsins(dummy bool) ([]*TitleAsin, Asins, int) {
 			titleAsins = append(titleAsins, titleAsin)
 		}
 	} else {
-		for page := 1; ; page++ {
+		page := GetOneLastUpdateBookPage() + 1
+		log.Println("page:", page)
+		for ; ; page++ {
 			url := getUrl(page)
-			urlTitleAsins := getUrlAsins(url)
+			urlTitleAsins, err := getUrlAsins(url)
 			titleAsins = append(titleAsins, urlTitleAsins...)
 			log.Printf("URL:%s Books:%d\n", url, len(urlTitleAsins))
 			if len(urlTitleAsins) == 0 {
+				if err == nil {
+					SetOneLastUpdateBookPage(0)
+				} else {
+					SetOneLastUpdateBookPage(page - 1)
+				}
 				break
 			}
 		}
