@@ -16,9 +16,10 @@
     <thead>
       <tr>
         <th>日付</th>
-        <th>asin取得数</th>
-        <th>asin更新数</th>
-        <th>book更新数</th>
+        <th>Asin取得数</th>
+        <th>Title取得数</th>
+        <th>Asin更新数</th>
+        <th>Book更新数</th>
       </tr>
     </thead>
     <tbody>
@@ -26,6 +27,7 @@
       <tr>
         <th scope="row">{{printf "%d-%d-%d" .Date.Year .Date.Month .Date.Day}}</th>
         <td>{{.FetchAsinCount}}</td>
+        <td>{{.FetchTitleCount}}</td>
         <td>{{.UpdateAsinCount}}</td>
         <td>{{.UpdatedBookCount}}</td>
       </tr>

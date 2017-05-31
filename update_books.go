@@ -350,7 +350,7 @@ func updateTitleID(titleAsins []*TitleAsin) {
 	}
 }
 
-func updateLog(fetchAsinCount, updateAsinCount, updatedBookCount int) {
+func updateLog(fetchAsinCount, fetchTitleCount, updateAsinCount, updatedBookCount int) {
 	var log UpdateLog
 	now := time.Now()
 	date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
@@ -383,7 +383,7 @@ func main() {
 	updateDb(books)
 	updateTitleID(titleAsins)
 
-	updateLog(fetchAsinCount, len(asins), len(books))
+	updateLog(fetchAsinCount, len(titleAsins), len(asins), len(books))
 
 	log.Printf("fetchAsinCount: %d\n", fetchAsinCount)
 	log.Printf("updateAsinCount: %d\n", len(asins))
