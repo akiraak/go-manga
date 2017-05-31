@@ -157,7 +157,7 @@ func getAsins(dummy bool) ([]*TitleAsin, Asins, int) {
 		}
 	} else {
 		page := GetOneLastUpdateBookPage() + 1
-		log.Println("page:", page)
+		log.Println("Start page:", page)
 		for ; ; page++ {
 			url := getUrl(page)
 			urlTitleAsins, err := getUrlAsins(url)
@@ -357,11 +357,13 @@ func updateLog(fetchAsinCount, fetchTitleCount, updateAsinCount, updatedBookCoun
 	if db.ORM.Where("date = ?", date).Find(&log).RecordNotFound() {
 		log.Date = date
 		log.FetchAsinCount = fetchAsinCount
+		log.FetchTitleCount = fetchTitleCount
 		log.UpdateAsinCount = updateAsinCount
 		log.UpdatedBookCount = updatedBookCount
 		db.ORM.Create(&log)
 	} else {
 		log.FetchAsinCount += fetchAsinCount
+		log.FetchTitleCount += fetchTitleCount
 		log.UpdateAsinCount += updateAsinCount
 		log.UpdatedBookCount += updatedBookCount
 		db.ORM.Save(&log)
