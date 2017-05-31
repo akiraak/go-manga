@@ -2,19 +2,19 @@ package main
 
 import (
 	"errors"
-	"os"
+	"fmt"
+	"github.com/DDRBoxman/go-amazon-product-api"
+	"github.com/PuerkitoBio/goquery"
+	"github.com/akiraak/go-manga/db"
+	. "github.com/akiraak/go-manga/model"
 	"io"
 	"log"
 	"net/http"
-	"strings"
-	"strconv"
-	"fmt"
-	"time"
-	"github.com/PuerkitoBio/goquery"
+	"os"
 	"regexp"
-	"github.com/DDRBoxman/go-amazon-product-api"
-	"github.com/akiraak/go-manga/db"
-	. "github.com/akiraak/go-manga/model"
+	"strconv"
+	"strings"
+	"time"
 )
 
 const updateBookInterval = time.Duration(12) * time.Hour
@@ -225,8 +225,11 @@ func get10BooksInfo(asins Asins) ([]Book, int) {
 					if attributes.Length() > 0 {
 						book.PublishType = attributes.Find("Binding").Text()
 						book.Name = attributes.Find("Title").Text()
-						book.Publisher.Name = attributes.Find("Publisher").Text()
-						book.Author.Name = attributes.Find("Author").Text()
+						book.Publisher.Name = strings.TrimSpace(attributes.Find("Publisher").Text())
+						book.Author.Name = strings.TrimSpace(attributes.Find("Author").Text())
+						if book.Publisher.Name == "" || book.Author.Name == "" {
+							return
+						}
 						dateStr := attributes.Find("PublicationDate").Text()
 						jst, _ := time.LoadLocation("Asia/Tokyo")
 						datePublish, _ := time.ParseInLocation("2006-01-02", dateStr, jst)

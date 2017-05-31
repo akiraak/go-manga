@@ -14,7 +14,7 @@ def conv_info_models(model, mongo_objects):
     with db.transaction():
         for mongo_object in mongo_objects:
             model.create(
-                name=mongo_object['name'],
+                name=mongo_object['name'].strip(),
                 created_at=mongo_object['date_created'])
 
     # Make a map of mongo_id to mysql_id
