@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 	"sort"
+	"strconv"
 )
 
 type Book struct {
@@ -68,6 +69,19 @@ func (tbs *TitleBook) ImageURL() string {
 		}
 	}
 	return ""
+}
+
+func (tbs *TitleBook) DatePublish() string {
+	return (*tbs)[0].DatePublish
+}
+
+func (tbs *TitleBook) DatePublishTime() time.Time {
+	timeStr := tbs.DatePublish()
+	year, _ := strconv.Atoi(timeStr[0:4])
+	month, _ := strconv.Atoi(timeStr[4:6])
+	day, _ := strconv.Atoi(timeStr[6:8])
+	time := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+	return time
 }
 
 func prio(publishType string) int {

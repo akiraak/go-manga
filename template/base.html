@@ -10,22 +10,7 @@
     <!-- Bootstrap core CSS -->
     <!-- <link href="../../dist/css/bootstrap.min.css" rel="stylesheet"> -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-    <style type="text/css">
-    <!--
-      .bg-inverse {
-        background-color: #ea8810!important;;
-      }
-      .container, .container-fluid {
-        padding-top: 54px;
-      }
-      footer {
-        padding-top: 20px;
-        padding-bottom: 40px;
-        margin-top: 20px;
-        border-top: 1px solid #eee;
-      }
-    -->
-    </style>
+    <link rel="stylesheet" href="/static/css/main.css?t={{.NowUnix}}">
     {{template "style" .}}
   </head>
 
@@ -54,12 +39,10 @@
             <a class="nav-link" href="/log">Log</a>
           </li>
         </ul>
-        <!--
-        <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="text" placeholder="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        <form class="form-inline my-2 my-lg-0" action="/search" method="GET">
+          <input id="search-form" class="form-control mr-sm-2" type="text" placeholder="Search" name="key" value="{{.SearchKey}}">
+          <button id="search-button" class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>
-        -->
       </div>
     </nav>
 
