@@ -7,6 +7,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"sort"
+	"strconv"
 	"time"
 )
 
@@ -15,6 +17,10 @@ const PageTitle = "漫画書店 ver.ω."
 type BaseParam struct {
 	PageTitle	string
 	Nav			string
+}
+
+func (BaseParam)NowUnix() int64 {
+	return time.Now().Unix()
 }
 
 func titleBooks(books []Book) map[int64]*TitleBook {
@@ -79,6 +85,42 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tpl := template.Must(template.ParseFiles("template/base.html", "template/index.html"))
+	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
+		log.Println(err)
+	}
+}
+
+func searchBooks(keyword string) []*TitleBook {
+	if len(keyword) > 1 {
+		books := []Book{}
+		db.ORM.Where("name LIKE ?", "%" + keyword + "%").Find(&books)
+		tbooks := titleBooks(books)
+		sortedBooks := []*TitleBook{}
+		for _, tbook := range tbooks {
+			sortedBooks = append(sortedBooks, tbook)
+		}
+		sort.Slice(sortedBooks, func(i, j int) bool {
+			int1, _ := strconv.Atoi(sortedBooks[i].DatePublish())
+			int2, _ := strconv.Atoi(sortedBooks[j].DatePublish())
+			return int1 > int2
+		})
+		return sortedBooks
+	}
+	return []*TitleBook{}
+}
+
+func SearchHandler(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	keyword := query.Get("key")
+	type Param struct {
+		BaseParam
+		Keyword		string
+		TitleBooks	[]*TitleBook
+	}
+	param := Param{BaseParam{PageTitle, "search"}, keyword, []*TitleBook{}}
+	param.TitleBooks = searchBooks(keyword)
+
+	tpl := template.Must(template.ParseFiles("template/base.html", "template/search.html"))
 	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
 		log.Println(err)
 	}

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"github.com/akiraak/go-manga/db"
 	"github.com/akiraak/go-manga/router"
+	"github.com/gorilla/mux"
 	"io"
 	"log"
 	"net/http"
@@ -29,8 +29,9 @@ func main() {
 	//db.ORM.LogMode(true)
 
 	r := mux.NewRouter()
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
 	r.HandleFunc("/", router.IndexHandler)
 	r.HandleFunc("/log", router.LogHandler)
-	//r.HandleFunc("/search", router.SearchHandler)
+	r.HandleFunc("/search", router.SearchHandler)
 	log.Fatal(http.ListenAndServe(":8000", r))
 }

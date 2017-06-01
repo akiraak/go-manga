@@ -1,23 +1,23 @@
-{{define "title"}}新刊コーナー{{end}}
+{{define "title"}}検索{{end}}
 
 {{define "style"}}{{end}}
 
 {{define "content"}}
-{{range .Days}}
 <div id="books">
-  <div class="date">{{printf "%d月%d日発売" .Date.Month .Date.Day}}</div>
-  {{range $pkey, $tbooks := .PublisherBooks}}
-    {{range $tkey, $tbook := $tbooks}}
+  <div class="keyword">検索ワード：{{.Keyword}}</div>
+  {{range $tkey, $tbook := .TitleBooks}}
     <div class="book">
       <a href="{{$tbook.Url}}">
-        <div class="thumbnail-container">
-          {{if $tbook.ImageURL}}
-            <img class="thumbnail rounded" src="{{$tbook.ImageURL}}">
-          {{else}}
-            <div class="thumbnail thumbnail-text">{{$tbook.Name}}</div>
-          {{end}}
-        </div>
-        <div class="book-title">{{$tbook.Name}}</div>
+				<div class="thumbnail-container">
+					{{if $tbook.ImageURL}}
+	          <img class="thumbnail rounded" src="{{$tbook.ImageURL}}">
+	        {{else}}
+	          <div class="thumbnail thumbnail-text">{{$tbook.Name}}</div>
+	        {{end}}
+					{{$date := $tbook.DatePublishTime}}
+					<div class="thumbnail-date">{{printf "%d年%d月%d日" $date.Year $date.Month $date.Day}}</div>
+				</div>
+				<div class="book-title">{{$tbook.Name}}</div>
       </a>
       <div>
         {{range $tbook}}
@@ -33,11 +33,9 @@
         {{end}}
        </div>
     </div>
-    {{end}}
   {{end}}
   <div class="claer-both" />
 </div>
-{{end}}
 {{end}}
 
 {{define "script"}}{{end}}

@@ -1,0 +1,87 @@
+.bg-inverse {
+  background-color: #ea8810!important;;
+}
+.container, .container-fluid {
+  padding-top: 54px;
+}
+footer {
+  padding-top: 20px;
+  padding-bottom: 40px;
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+}
+#books .date, #books .keyword {
+  margin: 16px 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+#books .book {
+  list-style-type: none;
+  margin: 0 4px 0 0;
+  float: left;
+  width: 140px;
+  height: 266px;
+}
+#books .book a {
+  text-decoration: none;
+}
+#books .book .thumbnail-container {
+  position: relative;
+  width: 140px;
+  height: 200px;
+}
+#books .book .thumbnail-container .thumbnail {
+  width: 100%;
+  height: 100%;
+}
+#books .book .thumbnail-container .thumbnail-text {
+  border: 1px solid #ccc;
+  border-radius: .25rem;
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: #444;
+  padding: 4px;
+}
+#books .book .thumbnail-container .thumbnail-date {
+  width: 100%;
+  position: absolute;
+  bottom: 0px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 10px;
+  padding: 2px;
+  text-align: center;
+}
+#book-info {
+}
+#books .book-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  margin-top: 4px;
+}
+.claer-both {
+  clear: both;
+}
+.badge {
+  font-size: 9px;
+  font-weight: 300;
+  color: #fff;
+}
+.badge-pill {
+  border-radius: .2rem;
+  padding-right: .2em;
+  padding-left: .2em;
+}
+.badge-warning {
+  background-color: #f0bd5e;
+}
+.badge-info {
+  background-color: #6bd0ee;
+}
+.badge-default {
+  background-color: #838c92;
+}
