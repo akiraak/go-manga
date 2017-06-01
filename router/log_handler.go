@@ -13,7 +13,9 @@ func LogHandler(w http.ResponseWriter, r *http.Request) {
 		BaseParam
 		Logs []UpdateLog
 	}
-	param := Param{BaseParam{PageTitle, "log"}, []UpdateLog{}}
+	param := Param{}
+	param.PageTitle = PageTitle
+	param.Nav = "log"
 	db.ORM.Order("date desc").Find(&param.Logs)
 
 	tpl := template.Must(template.ParseFiles("template/base.html", "template/log.html"))

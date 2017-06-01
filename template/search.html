@@ -4,7 +4,7 @@
 
 {{define "content"}}
 <div id="books">
-  <div class="keyword">検索ワード：{{.Keyword}}</div>
+  <div class="keyword">検索ワード：{{.SearchKey}}</div>
   {{range $tkey, $tbook := .TitleBooks}}
     <div class="book">
       <a href="{{$tbook.Url}}">

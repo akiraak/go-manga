@@ -17,6 +17,7 @@ const PageTitle = "漫画書店 ver.ω."
 type BaseParam struct {
 	PageTitle	string
 	Nav			string
+	SearchKey	string
 }
 
 func (BaseParam)NowUnix() int64 {
@@ -77,7 +78,10 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	now := time.Now().In(jst)
 	days := 5
-	param := Param{BaseParam{PageTitle, "index"}, make([]Day, days)}
+	param := Param{}
+	param.PageTitle = PageTitle
+	param.Nav = "index"
+	param.Days = make([]Day, days)
 	for i := 0; i < days; i++ {
 		date := now.AddDate(0, 0, -i)
 		param.Days[i].Date = date
@@ -114,10 +118,12 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	keyword := query.Get("key")
 	type Param struct {
 		BaseParam
-		Keyword		string
 		TitleBooks	[]*TitleBook
 	}
-	param := Param{BaseParam{PageTitle, "search"}, keyword, []*TitleBook{}}
+	param := Param{}
+	param.PageTitle = PageTitle
+	param.Nav = "search"
+	param.SearchKey = keyword
 	param.TitleBooks = searchBooks(keyword)
 
 	tpl := template.Must(template.ParseFiles("template/base.html", "template/search.html"))
