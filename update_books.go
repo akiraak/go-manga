@@ -335,6 +335,10 @@ func updateTitleID(titleAsins []*TitleAsin) {
 		if db.ORM.Where("asin IN (?)", *titleAsin).Find(&books).RecordNotFound() {
 			log.Panicf("updateTitleID(): Book does not exist. Asins:%v", *titleAsin)
 		} else {
+			if len(books) == 0 {
+				// Fetch asin in web, but doesn't fetch xml by API
+				continue
+			}
 			if books[0].TitleID.Valid {
 				titleID = books[0].TitleID.Int64
 			}
