@@ -224,9 +224,9 @@ func get10BooksInfo(asins Asins) ([]Book, int) {
 					attributes := item.Find("ItemAttributes").First()
 					if attributes.Length() > 0 {
 						book.PublishType = attributes.Find("Binding").Text()
-						book.Name = attributes.Find("Title").Text()
-						book.Publisher.Name = strings.TrimSpace(attributes.Find("Publisher").Text())
-						book.Author.Name = strings.TrimSpace(attributes.Find("Author").Text())
+						book.Name = CleanName(attributes.Find("Title").Text())
+						book.Publisher.Name = CleanName(attributes.Find("Publisher").Text())
+						book.Author.Name = CleanName(attributes.Find("Author").Text())
 						if book.Publisher.Name == "" || book.Author.Name == "" {
 							return
 						}

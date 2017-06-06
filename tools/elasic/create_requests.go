@@ -9,13 +9,6 @@ import (
 	"strings"
 )
 
-func safeString(s string) string {
-	s = strings.Replace(s, "\"", "\\u0022", -1)
-	s = strings.Replace(s, "\n", "", -1)
-	s = strings.Replace(s, "\t", "", -1)
-	return s
-}
-
 func main() {
 	db.ORM = db.InitDB()
 	defer db.ORM.Close()
@@ -30,9 +23,9 @@ func main() {
 		author := Author{}
 		db.ORM.Where("id = ?", book.AuthorID).First(&author)
 
-		title := safeString(book.Name)
-		publisherName := safeString(publisher.Name)
-		authorName := safeString(author.Name)
+		title := CleanName(book.Name)
+		publisherName := CleanName(publisher.Name)
+		authorName := CleanName(author.Name)
 		buf = append(buf, fmt.Sprintf(`{"index": {"_index": "asins", "_type": "asin", "_id": "%s"}}`, book.Asin))
 		buf = append(buf, fmt.Sprintf(`{"title": "%s", "publisher": "%s", "author": "%s"}`, title, publisherName, authorName))
 		if i % 1000 == 0 {

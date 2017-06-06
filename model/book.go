@@ -6,6 +6,7 @@ import (
 	"time"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 type Book struct {
@@ -100,4 +101,13 @@ func (tbs *TitleBook) sorte() {
 	sort.Slice(books, func(i, j int) bool {
 		return prio(books[i].PublishType) < prio(books[j].PublishType)
 	})
+}
+
+
+func CleanName(s string) string {
+	s = strings.TrimSpace(s)
+	s = strings.Replace(s, "\"", "\\u0022", -1)
+	s = strings.Replace(s, "\n", "", -1)
+	s = strings.Replace(s, "\t", "", -1)
+	return s
 }
