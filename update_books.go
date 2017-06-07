@@ -313,7 +313,7 @@ func updateDb(books []Book) {
 			db.ORM.Set("gorm:save_associations", false).Save(&book)
 		}
 
-		records = append(records, elastic.AsinRecord{book.Asin, elastic.AsinParam{book.Name, book.Publisher.Name, book.Author.Name}})
+		records = append(records, elastic.AsinRecord{elastic.AsinParam{book.Name, book.Publisher.Name, book.Author.Name, ""}, book.Asin})
 	}
 
 	log.Println("Elasticsearch Added index:", len(records))

@@ -3,6 +3,7 @@ package router
 import (
 	"fmt"
 	"github.com/akiraak/go-manga/db"
+	"github.com/akiraak/go-manga/elastic"
 	. "github.com/akiraak/go-manga/model"
 	"html/template"
 	"log"
@@ -94,10 +95,16 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func searchBooks(keyword string) []*TitleBook {
+func searchBooks(keyword string) ([]*TitleBook, int64, int) {
 	if len(keyword) > 1 {
+		searchBooks, hitTotal := elastic.SearchAsins(keyword)
+		ids := make([]string, len(searchBooks))
+		for _, book := range searchBooks {
+			ids = append(ids, book.Asin)
+		}
+
 		books := []Book{}
-		db.ORM.Where("name LIKE ?", "%" + keyword + "%").Find(&books)
+		db.ORM.Where("asin IN (?)", ids).Find(&books)
 		tbooks := titleBooks(books)
 		sortedBooks := []*TitleBook{}
 		for _, tbook := range tbooks {
@@ -108,9 +115,9 @@ func searchBooks(keyword string) []*TitleBook {
 			int2, _ := strconv.Atoi(sortedBooks[j].DatePublish())
 			return int1 > int2
 		})
-		return sortedBooks
+		return sortedBooks, hitTotal, len(searchBooks)
 	}
-	return []*TitleBook{}
+	return []*TitleBook{}, 0, 0
 }
 
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
@@ -119,12 +126,14 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	type Param struct {
 		BaseParam
 		TitleBooks	[]*TitleBook
+		HitTotal	int64
+		AsinsCount	int
 	}
 	param := Param{}
 	param.PageTitle = PageTitle
 	param.Nav = "search"
 	param.SearchKey = keyword
-	param.TitleBooks = searchBooks(keyword)
+	param.TitleBooks, param.HitTotal, param.AsinsCount = searchBooks(keyword)
 
 	tpl := template.Must(template.ParseFiles("template/base.html", "template/search.html"))
 	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
