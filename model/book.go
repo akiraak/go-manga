@@ -103,7 +103,6 @@ func (tbs *TitleBook) sorte() {
 	})
 }
 
-
 func CleanName(s string) string {
 	s = strings.TrimSpace(s)
 	s = strings.Replace(s, "\"", "\\u0022", -1)
