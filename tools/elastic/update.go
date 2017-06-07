@@ -12,21 +12,28 @@ func main() {
 	defer db.ORM.Close()
 	//db.ORM.LogMode(true)
 
-	records := []elastic.AsinRecord{}
-	books := []Book{}
-	db.ORM.Find(&books)
-	for i, book := range books {
-		publisher := Publisher{}
-		db.ORM.Where("id = ?", book.PublisherID).First(&publisher)
-		author := Author{}
-		db.ORM.Where("id = ?", book.AuthorID).First(&author)
+	total := 0
+	db.ORM.Table("books").Count(&total)
 
-		title := CleanName(book.Name)
-		publisherName := CleanName(publisher.Name)
-		authorName := CleanName(author.Name)
-		records = append(records, elastic.AsinRecord{elastic.AsinParam{title, publisherName, authorName, ""}, book.Asin})
-		if i % 1000 == 0 {
-			fmt.Printf("%d%% : %d / %d\n", (i * 100  / len(books)), i, len(books))
+	records := []elastic.AsinRecord{}
+	max := 1000
+	for i := 0; ; i++ {
+		books := []Book{}
+		db.ORM.Offset(i * max).Limit(max).Find(&books)
+		for _, book := range books {
+			publisher := Publisher{}
+			db.ORM.Where("id = ?", book.PublisherID).First(&publisher)
+			author := Author{}
+			db.ORM.Where("id = ?", book.AuthorID).First(&author)
+
+			title := CleanName(book.Name)
+			publisherName := CleanName(publisher.Name)
+			authorName := CleanName(author.Name)
+			records = append(records, elastic.AsinRecord{elastic.AsinParam{title, publisherName, authorName, ""}, book.Asin})
+		}
+		fmt.Printf("%d%% : %d / %d\n", (i * max * 100  / total), i * max, total)
+		if len(books) == 0 {
+			break
 		}
 	}
 
