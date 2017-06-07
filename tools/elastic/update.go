@@ -30,23 +30,9 @@ func main() {
 		}
 	}
 
-	max := 20000
-	for i := 0; ; i++ {
-		start := (i * max)
-		end := start + max
-		if end >= len(records) {
-			end = len(records)
-		}
-		fmt.Println(start, end)
-		updateRecords := records[start:end]
-		fmt.Println("Added index:", len(updateRecords))
-		updatedIndex := elastic.BulkAsinIndex(updateRecords)
-		fmt.Println("Updated index:", updatedIndex)
-
-		if end >= len(records) {
-			break
-		}
-	}
+	fmt.Println("Added index:", len(records))
+	updatedIndex := elastic.BulkAsinIndex(records)
+	fmt.Println("Updated index:", updatedIndex)
 
 	fmt.Println("Success")
 }

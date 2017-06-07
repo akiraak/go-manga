@@ -6,6 +6,7 @@ import (
 	"github.com/DDRBoxman/go-amazon-product-api"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/akiraak/go-manga/db"
+	"github.com/akiraak/go-manga/elastic"
 	. "github.com/akiraak/go-manga/model"
 	"io"
 	"log"
@@ -285,6 +286,7 @@ func getBooksInfo(asins []string) []Book {
 }
 
 func updateDb(books []Book) {
+	records := []elastic.AsinRecord{}
 	for _, book := range books {
 		var publisher Publisher
 		if db.ORM.Where(&Publisher{Name: book.Publisher.Name}).First(&publisher).RecordNotFound() {
@@ -310,7 +312,13 @@ func updateDb(books []Book) {
 			book.CreatedAt = existBook.CreatedAt
 			db.ORM.Set("gorm:save_associations", false).Save(&book)
 		}
+
+		records = append(records, elastic.AsinRecord{book.Asin, elastic.AsinParam{book.Name, book.Publisher.Name, book.Author.Name}})
 	}
+
+	log.Println("Elasticsearch Added index:", len(records))
+	updatedIndex := elastic.BulkAsinIndex(records)
+	log.Println("Elasticsearch Updated index:", updatedIndex)
 }
 
 func initLog() *os.File {
