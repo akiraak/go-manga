@@ -35,9 +35,6 @@
             <a class="nav-link" href="">マイ本棚</a>
           </li>
           -->
-          <li class="nav-item {{if eq .Nav "log"}}active{{end}}">
-            <a class="nav-link" href="/log">Log</a>
-          </li>
         </ul>
         <form class="form-inline my-2 my-lg-0" action="/search" method="GET">
           <input id="search-form" class="form-control mr-sm-2" type="text" placeholder="Search" name="key" value="{{.SearchKey}}">
@@ -49,7 +46,11 @@
     <div class="container-fluid">
       {{template "content" .}}
       <footer>
-        <p>Created by <a href="https://github.com/akiraak">akiraak</a>. Github repo is <a href="https://github.com/akiraak/go-manga">akiraak/go-manga</a>.</p>
+        <p>
+          Created by <a href="https://github.com/akiraak">akiraak</a>.
+          Github repo is <a href="https://github.com/akiraak/go-manga">akiraak/go-manga</a>.
+          <a href="/log">Log.</a>
+        </p>
       </footer>
     </div><!-- /.container -->
 
