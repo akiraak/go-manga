@@ -5,7 +5,7 @@
 {{define "content"}}
 {{range .Days}}
 <div id="books">
-  <div class="date">{{printf "%d月%d日発売" .Date.Month .Date.Day}}</div>
+  <div class="title">{{printf "%d月%d日発売" .Date.Month .Date.Day}}</div>
   {{range $pkey, $tbooks := .PublisherBooks}}
     {{range $tkey, $tbook := $tbooks}}
     <div class="book">

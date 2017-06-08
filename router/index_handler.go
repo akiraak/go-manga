@@ -25,7 +25,7 @@ func (BaseParam)NowUnix() int64 {
 	return time.Now().Unix()
 }
 
-func titleBooks(books []Book) map[int64]*TitleBook {
+func titleGroupBooks(books []Book) map[int64]*TitleBook {
 	resultBooks := map[int64]*TitleBook{}
 	for _, book := range books {
 		if !book.TitleID.Valid {
@@ -43,7 +43,7 @@ func titleBooks(books []Book) map[int64]*TitleBook {
 	return resultBooks
 }
 
-func publisherBooks(titleBooks map[int64]*TitleBook) map[int64]map[int64]*TitleBook {
+func publisherGroupBooks(titleBooks map[int64]*TitleBook) map[int64]map[int64]*TitleBook {
 	resultBooks := map[int64]map[int64]*TitleBook{}
 	for key, tBook := range titleBooks {
 		publisherID := tBook.PublisherID()
@@ -62,8 +62,8 @@ func dateBooks(year int, month time.Month, day int) map[int64]map[int64]*TitleBo
 	books := []Book{}
 	date := fmt.Sprintf("%d%02d%02d", year, month, day)
 	db.ORM.Where("date_publish = ?", date).Find(&books)
-	tboos := titleBooks(books)
-	pboos := publisherBooks(tboos)
+	tboos := titleGroupBooks(books)
+	pboos := publisherGroupBooks(tboos)
 	return pboos
 }
 
@@ -105,7 +105,7 @@ func searchBooks(keyword string) ([]*TitleBook, int64, int) {
 
 		books := []Book{}
 		db.ORM.Where("asin IN (?)", ids).Find(&books)
-		tbooks := titleBooks(books)
+		tbooks := titleGroupBooks(books)
 		sortedBooks := []*TitleBook{}
 		for _, tbook := range tbooks {
 			sortedBooks = append(sortedBooks, tbook)
