@@ -140,3 +140,12 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 }
+
+func PageQuery(r *http.Request) int {
+	q := r.URL.Query()
+	page, err := strconv.Atoi(q.Get("p"))
+	if page == 0 || err != nil {
+		page = 1
+	}
+	return page
+}

@@ -34,5 +34,13 @@ func main() {
 	r.HandleFunc("/publisher/{id:[0-9]+}", router.PublisherHandler)
 	r.HandleFunc("/log", router.LogHandler)
 	r.HandleFunc("/search", router.SearchHandler)
+
+	adminPath := os.Getenv("MANGANOW_ADMIN_PATH")
+	if adminPath != "" {
+		log.Println(adminPath)
+		r.HandleFunc(adminPath + "/publisher", router.AdminPublisherHandler)
+		r.HandleFunc(adminPath + "/publisher/{id:[0-9]+}/ero", router.AdminPublisherEroHandler)
+	}
+
 	log.Fatal(http.ListenAndServe(":8000", r))
 }

@@ -4,6 +4,10 @@
 .container, .container-fluid {
   padding-top: 54px;
 }
+h1 {
+  font-size: 30px;
+  margin: 16px 0;
+}
 footer {
   padding-top: 20px;
   padding-bottom: 40px;
@@ -66,6 +70,16 @@ footer {
   white-space: nowrap;
   font-size: 12px;
   margin-top: 4px;
+}
+.publishers .thumbnail {
+  margin-right: 4px;
+  float: left;
+  width: 70px;
+  height: 100px;
+}
+.publishers .ero {
+  color: #FFC0CB;
+
 }
 .claer-both {
   clear: both;
