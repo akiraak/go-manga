@@ -58,10 +58,18 @@ func publisherGroupBooks(titleBooks map[int64]*TitleBook) map[int64]map[int64]*T
 	return resultBooks
 }
 
-func dateBooks(year int, month time.Month, day int) map[int64]map[int64]*TitleBook {
+func dateBooks(year int, month time.Month, day int, ero bool) map[int64]map[int64]*TitleBook {
 	books := []Book{}
 	date := fmt.Sprintf("%d%02d%02d", year, month, day)
-	db.ORM.Where("date_publish = ?", date).Find(&books)
+	eroVal := 0
+	if ero {
+		eroVal = 1
+	}
+	db.ORM.
+		Joins("left join publishers on publishers.id = books.publisher_id").
+		Where("date_publish = ?", date).
+		Where("publishers.ero = ?", eroVal).
+		Find(&books)
 	tboos := titleGroupBooks(books)
 	pboos := publisherGroupBooks(tboos)
 	return pboos
@@ -86,7 +94,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < days; i++ {
 		date := now.AddDate(0, 0, -i)
 		param.Days[i].Date = date
-		param.Days[i].PublisherBooks = dateBooks(date.Year(), date.Month(), date.Day())
+		param.Days[i].PublisherBooks = dateBooks(date.Year(), date.Month(), date.Day(), false)
 	}
 
 	tpl := template.Must(template.ParseFiles("template/base.html", "template/index.html"))
