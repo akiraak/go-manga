@@ -1,10 +1,10 @@
-{{define "title"}}{{.SearchKey}}{{end}}
+{{define "title"}}{{.Publisher.Name}}{{end}}
 
 {{define "style"}}{{end}}
 
 {{define "content"}}
 <div id="books">
-  <div class="title">検索ワード：{{.SearchKey}}</div>
+  <div class="title">{{.Publisher.Name}}</div>
   <div class="show-count">{{.HitTotal}}件中 {{.AsinsCount}}件を表示</div>
   {{range $tkey, $tbook := .TitleBooks}}
     <div class="book">

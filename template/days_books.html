@@ -1,24 +1,19 @@
-{{define "title"}}{{.SearchKey}}{{end}}
-
-{{define "style"}}{{end}}
-
-{{define "content"}}
+{{define "days_books"}}
+{{range .Days}}
 <div id="books">
-  <div class="title">検索ワード：{{.SearchKey}}</div>
-  <div class="show-count">{{.HitTotal}}件中 {{.AsinsCount}}件を表示</div>
-  {{range $tkey, $tbook := .TitleBooks}}
+  <div class="title">{{printf "%d月%d日発売" .Date.Month .Date.Day}}</div>
+  {{range $pkey, $tbooks := .PublisherBooks}}
+    {{range $tkey, $tbook := $tbooks}}
     <div class="book">
       <a href="{{$tbook.Url}}">
-				<div class="thumbnail-container">
-					{{if $tbook.ImageURL}}
-	          <img class="thumbnail rounded" src="{{$tbook.ImageURL}}">
-	        {{else}}
-	          <div class="thumbnail thumbnail-text">{{$tbook.Name}}</div>
-	        {{end}}
-					{{$date := $tbook.DatePublishTime}}
-					<div class="thumbnail-date">{{printf "%d年%d月%d日" $date.Year $date.Month $date.Day}}</div>
-				</div>
-				<div class="book-title">{{$tbook.Name}}</div>
+        <div class="thumbnail-container">
+          {{if $tbook.ImageURL}}
+            <img class="thumbnail rounded" src="{{$tbook.ImageURL}}">
+          {{else}}
+            <div class="thumbnail thumbnail-text">{{$tbook.Name}}</div>
+          {{end}}
+        </div>
+        <div class="book-title">{{$tbook.Name}}</div>
       </a>
       <div>
         {{range $tbook}}
@@ -34,9 +29,9 @@
         {{end}}
        </div>
     </div>
+    {{end}}
   {{end}}
   <div class="claer-both" />
 </div>
 {{end}}
-
-{{define "script"}}{{end}}
+{{end}}

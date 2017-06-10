@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 	"sort"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -37,8 +38,20 @@ type Book struct {
 	Author			Author
 }
 
-func (b Book) Url() string {
+func (b *Book) Url() string {
 	return fmt.Sprintf("http://amazon.jp/o/ASIN/%s", b.Asin)
+}
+
+func (b *Book) ImageUrl() string {
+	switch {
+	case len(b.ImageL_Url) > 0:
+		return b.ImageL_Url
+	case len(b.ImageM_Url) > 0:
+		return b.ImageM_Url
+	case len(b.ImageS_Url) > 0:
+		return b.ImageS_Url
+	}
+	return ""
 }
 
 type TitleBook []Book
@@ -64,9 +77,15 @@ func (tbs *TitleBook) Name() string {
 }
 
 func (tbs *TitleBook) ImageURL() string {
-	for _, book := range *tbs {
-		if len(book.ImageL_Url) > 0 {
-			return book.ImageL_Url
+	names := []string{"ImageL_Url", "ImageM_Url", "ImageS_Url"}
+	for _, name := range names {
+		for _, book := range *tbs {
+			v := reflect.Indirect(reflect.ValueOf(book))
+			f := v.FieldByName(name)
+			imageUrl := f.String()
+			if len(imageUrl) > 0 {
+				return imageUrl
+			}
 		}
 	}
 	return ""

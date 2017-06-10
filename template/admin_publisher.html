@@ -1,0 +1,85 @@
+{{define "title"}}出版社一覧{{end}}
+
+{{define "style"}}
+<style type="text/css">
+<!--
+  .logs {
+    padding-top: 20px;
+  }
+-->
+</style>
+{{end}}
+
+{{define "content"}}
+<h1>出版社一覧</h1>
+
+<nav aria-label="...">
+  <ul class="pagination pagination-sm">
+    {{range .Page.Items}}
+      <li class="page-item {{if eq .Page 0}}disabled{{end}}">
+        <a class="page-link" href="publisher?p={{.Page}}">{{.Str}}</a>
+      </li>
+    {{end}}
+  </ul>
+</nav>
+
+<section class="publishers">
+  <table class="table table-sm">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>出版社名</th>
+        <th>書籍</th>
+        <th>エロ</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+    {{range .Publishers}}
+      <tr>
+        <td><a href="/publisher/{{.ID}}">{{.ID}}</a></td>
+        <td><a href="/publisher/{{.ID}}">{{.Name}}</a></td>
+        <td>
+          {{range .LatestBooks 8}}
+            <a href="{{.Url}}">
+              <img class="thumbnail rounded" src="{{.ImageUrl}}">
+            </a>
+          {{end}}
+        </td>
+        <td class="r18">{{if .R18}}エロ{{end}}</td>
+        <td>
+        {{if .R18}}
+          <button data-publisher="{{.ID}}" type="button" class="change-r18 btn btn-outline-info btn-sm">エロ解除</button>
+        {{else}}
+          <button data-publisher="{{.ID}}" type="button" class="change-r18 btn btn-outline-danger btn-sm">エロ設定</button>
+        {{end}}
+        </td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+</section>
+
+<nav aria-label="...">
+  <ul class="pagination pagination-sm">
+    {{range .Page.Items}}
+      <li class="page-item {{if eq .Page 0}}disabled{{end}}">
+        <a class="page-link" href="publisher?p={{.Page}}">{{.Str}}</a>
+      </li>
+    {{end}}
+  </ul>
+</nav>
+{{end}}
+
+{{define "script"}}
+<script>
+$(function() {
+  $('.change-r18').click(function() {
+    var publisherId = $(this).data("publisher")
+    $.get( "publisher/" + publisherId + "/r18", function(data) {
+      location.reload();
+    })
+  });
+});
+</script>
+{{end}}

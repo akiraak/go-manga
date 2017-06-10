@@ -25,7 +25,17 @@ func (BaseParam)NowUnix() int64 {
 	return time.Now().Unix()
 }
 
-func titleBooks(books []Book) map[int64]*TitleBook {
+type Day struct {
+	Date			time.Time
+	PublisherBooks	map[int64]map[int64]*TitleBook
+}
+
+type DaysParam struct {
+	BaseParam
+	Days	[]Day
+}
+
+func titleGroupBooks(books []Book) map[int64]*TitleBook {
 	resultBooks := map[int64]*TitleBook{}
 	for _, book := range books {
 		if !book.TitleID.Valid {
@@ -43,7 +53,7 @@ func titleBooks(books []Book) map[int64]*TitleBook {
 	return resultBooks
 }
 
-func publisherBooks(titleBooks map[int64]*TitleBook) map[int64]map[int64]*TitleBook {
+func publisherGroupBooks(titleBooks map[int64]*TitleBook) map[int64]map[int64]*TitleBook {
 	resultBooks := map[int64]map[int64]*TitleBook{}
 	for key, tBook := range titleBooks {
 		publisherID := tBook.PublisherID()
@@ -58,38 +68,50 @@ func publisherBooks(titleBooks map[int64]*TitleBook) map[int64]map[int64]*TitleB
 	return resultBooks
 }
 
-func dateBooks(year int, month time.Month, day int) map[int64]map[int64]*TitleBook {
+func dateBooks(year int, month time.Month, day int, r18 bool) map[int64]map[int64]*TitleBook {
 	books := []Book{}
 	date := fmt.Sprintf("%d%02d%02d", year, month, day)
-	db.ORM.Where("date_publish = ?", date).Find(&books)
-	tboos := titleBooks(books)
-	pboos := publisherBooks(tboos)
+	r18Val := 0
+	if r18 {
+		r18Val = 1
+	}
+	db.ORM.
+		Joins("left join publishers on publishers.id = books.publisher_id").
+		Where("date_publish = ?", date).
+		Where("publishers.r18 = ?", r18Val).
+		Find(&books)
+	tboos := titleGroupBooks(books)
+	pboos := publisherGroupBooks(tboos)
 	return pboos
 }
 
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	type Day struct {
-		Date			time.Time
-		PublisherBooks	map[int64]map[int64]*TitleBook
-	}
-	type Param struct {
-		BaseParam
-		Days	[]Day
-	}
+func daysBooks(nav string, r18 bool) DaysParam {
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	now := time.Now().In(jst)
 	days := 5
-	param := Param{}
+	param := DaysParam{}
 	param.PageTitle = PageTitle
-	param.Nav = "index"
+	param.Nav = nav
 	param.Days = make([]Day, days)
 	for i := 0; i < days; i++ {
 		date := now.AddDate(0, 0, -i)
 		param.Days[i].Date = date
-		param.Days[i].PublisherBooks = dateBooks(date.Year(), date.Month(), date.Day())
+		param.Days[i].PublisherBooks = dateBooks(date.Year(), date.Month(), date.Day(), r18)
 	}
+	return param
+}
 
-	tpl := template.Must(template.ParseFiles("template/base.html", "template/index.html"))
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	param := daysBooks("index", false)
+	tpl := template.Must(template.ParseFiles("template/base.html", "template/index.html", "template/days_books.html"))
+	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
+		log.Println(err)
+	}
+}
+
+func R18Handler(w http.ResponseWriter, r *http.Request) {
+	param := daysBooks("r18", true)
+	tpl := template.Must(template.ParseFiles("template/base.html", "template/r18.html", "template/days_books.html"))
 	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
 		log.Println(err)
 	}
@@ -105,7 +127,7 @@ func searchBooks(keyword string) ([]*TitleBook, int64, int) {
 
 		books := []Book{}
 		db.ORM.Where("asin IN (?)", ids).Find(&books)
-		tbooks := titleBooks(books)
+		tbooks := titleGroupBooks(books)
 		sortedBooks := []*TitleBook{}
 		for _, tbook := range tbooks {
 			sortedBooks = append(sortedBooks, tbook)
@@ -139,4 +161,13 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
 		log.Println(err)
 	}
+}
+
+func PageQuery(r *http.Request) int {
+	q := r.URL.Query()
+	page, err := strconv.Atoi(q.Get("p"))
+	if page == 0 || err != nil {
+		page = 1
+	}
+	return page
 }

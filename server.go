@@ -31,7 +31,17 @@ func main() {
 	r := mux.NewRouter()
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
 	r.HandleFunc("/", router.IndexHandler)
+	r.HandleFunc("/r18", router.R18Handler)
+	r.HandleFunc("/publisher/{id:[0-9]+}", router.PublisherHandler)
 	r.HandleFunc("/log", router.LogHandler)
 	r.HandleFunc("/search", router.SearchHandler)
+
+	adminPath := os.Getenv("MANGANOW_ADMIN_PATH")
+	if adminPath != "" {
+		log.Println(adminPath)
+		r.HandleFunc(adminPath + "/publisher", router.AdminPublisherHandler)
+		r.HandleFunc(adminPath + "/publisher/{id:[0-9]+}/r18", router.AdminPublisherR18Handler)
+	}
+
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
