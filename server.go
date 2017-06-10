@@ -31,6 +31,7 @@ func main() {
 	r := mux.NewRouter()
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
 	r.HandleFunc("/", router.IndexHandler)
+	r.HandleFunc("/r18", router.R18Handler)
 	r.HandleFunc("/publisher/{id:[0-9]+}", router.PublisherHandler)
 	r.HandleFunc("/log", router.LogHandler)
 	r.HandleFunc("/search", router.SearchHandler)

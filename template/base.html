@@ -25,12 +25,12 @@
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item {{if eq .Nav "index"}}active{{end}}">
-            <a class="nav-link" href="/">新刊コーナー<span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="/">新刊<span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item {{if eq .Nav "r18"}}active{{end}}">
+            <a class="nav-link" href="/r18">R18<span class="sr-only">(current)</span></a>
           </li>
           <!--
-          <li class="nav-item">
-            <a class="nav-link" href="">R18</a>
-          </li>
           <li class="nav-item">
             <a class="nav-link" href="">マイ本棚</a>
           </li>

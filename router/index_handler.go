@@ -25,6 +25,16 @@ func (BaseParam)NowUnix() int64 {
 	return time.Now().Unix()
 }
 
+type Day struct {
+	Date			time.Time
+	PublisherBooks	map[int64]map[int64]*TitleBook
+}
+
+type DaysParam struct {
+	BaseParam
+	Days	[]Day
+}
+
 func titleGroupBooks(books []Book) map[int64]*TitleBook {
 	resultBooks := map[int64]*TitleBook{}
 	for _, book := range books {
@@ -75,29 +85,33 @@ func dateBooks(year int, month time.Month, day int, ero bool) map[int64]map[int6
 	return pboos
 }
 
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	type Day struct {
-		Date			time.Time
-		PublisherBooks	map[int64]map[int64]*TitleBook
-	}
-	type Param struct {
-		BaseParam
-		Days	[]Day
-	}
+func daysBooks(nav string, r18 bool) DaysParam {
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	now := time.Now().In(jst)
 	days := 5
-	param := Param{}
+	param := DaysParam{}
 	param.PageTitle = PageTitle
-	param.Nav = "index"
+	param.Nav = nav
 	param.Days = make([]Day, days)
 	for i := 0; i < days; i++ {
 		date := now.AddDate(0, 0, -i)
 		param.Days[i].Date = date
-		param.Days[i].PublisherBooks = dateBooks(date.Year(), date.Month(), date.Day(), false)
+		param.Days[i].PublisherBooks = dateBooks(date.Year(), date.Month(), date.Day(), r18)
 	}
+	return param
+}
 
-	tpl := template.Must(template.ParseFiles("template/base.html", "template/index.html"))
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	param := daysBooks("index", false)
+	tpl := template.Must(template.ParseFiles("template/base.html", "template/index.html", "template/days_books.html"))
+	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
+		log.Println(err)
+	}
+}
+
+func R18Handler(w http.ResponseWriter, r *http.Request) {
+	param := daysBooks("r18", true)
+	tpl := template.Must(template.ParseFiles("template/base.html", "template/r18.html", "template/days_books.html"))
 	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
 		log.Println(err)
 	}
