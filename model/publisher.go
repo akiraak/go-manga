@@ -8,7 +8,7 @@ import (
 type Publisher struct {
 	ID			int64
 	Name		string
-	Ero			bool
+	R18			bool
 	CreatedAt	time.Time
 }
 

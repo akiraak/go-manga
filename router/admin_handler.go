@@ -13,18 +13,18 @@ import (
 	"strconv"
 )
 
-func AdminPublisherEroHandler(w http.ResponseWriter, r *http.Request) {
+func AdminPublisherR18Handler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	publisherId, _ := strconv.ParseInt(vars["id"], 10, 64)
 	publisher := Publisher{}
 	if !db.ORM.Where("id = ?", publisherId).First(&publisher).RecordNotFound() {
-		if publisher.Ero {
-			publisher.Ero = false
+		if publisher.R18 {
+			publisher.R18 = false
 		} else {
-			publisher.Ero = true
+			publisher.R18 = true
 		}
 		db.ORM.Save(&publisher)
-		log.Println(publisher, "update ero to", publisher.Ero)
+		log.Println(publisher, "update R18 to", publisher.R18)
 	}
 	fmt.Fprintf(w, "ok")
 }

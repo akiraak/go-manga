@@ -40,7 +40,7 @@ func main() {
 	if adminPath != "" {
 		log.Println(adminPath)
 		r.HandleFunc(adminPath + "/publisher", router.AdminPublisherHandler)
-		r.HandleFunc(adminPath + "/publisher/{id:[0-9]+}/ero", router.AdminPublisherEroHandler)
+		r.HandleFunc(adminPath + "/publisher/{id:[0-9]+}/r18", router.AdminPublisherR18Handler)
 	}
 
 	log.Fatal(http.ListenAndServe(":8000", r))

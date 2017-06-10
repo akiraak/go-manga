@@ -46,12 +46,12 @@
             </a>
           {{end}}
         </td>
-        <td class="ero">{{if .Ero}}エロ{{end}}</td>
+        <td class="r18">{{if .R18}}エロ{{end}}</td>
         <td>
-        {{if .Ero}}
-          <button data-publisher="{{.ID}}" type="button" class="change-ero btn btn-outline-info btn-sm">エロ解除</button>
+        {{if .R18}}
+          <button data-publisher="{{.ID}}" type="button" class="change-r18 btn btn-outline-info btn-sm">エロ解除</button>
         {{else}}
-          <button data-publisher="{{.ID}}" type="button" class="change-ero btn btn-outline-danger btn-sm">エロ設定</button>
+          <button data-publisher="{{.ID}}" type="button" class="change-r18 btn btn-outline-danger btn-sm">エロ設定</button>
         {{end}}
         </td>
       </tr>
@@ -74,9 +74,9 @@
 {{define "script"}}
 <script>
 $(function() {
-  $('.change-ero').click(function() {
+  $('.change-r18').click(function() {
     var publisherId = $(this).data("publisher")
-    $.get( "publisher/" + publisherId + "/ero", function(data) {
+    $.get( "publisher/" + publisherId + "/r18", function(data) {
       location.reload();
     })
   });

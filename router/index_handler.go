@@ -68,17 +68,17 @@ func publisherGroupBooks(titleBooks map[int64]*TitleBook) map[int64]map[int64]*T
 	return resultBooks
 }
 
-func dateBooks(year int, month time.Month, day int, ero bool) map[int64]map[int64]*TitleBook {
+func dateBooks(year int, month time.Month, day int, r18 bool) map[int64]map[int64]*TitleBook {
 	books := []Book{}
 	date := fmt.Sprintf("%d%02d%02d", year, month, day)
-	eroVal := 0
-	if ero {
-		eroVal = 1
+	r18Val := 0
+	if r18 {
+		r18Val = 1
 	}
 	db.ORM.
 		Joins("left join publishers on publishers.id = books.publisher_id").
 		Where("date_publish = ?", date).
-		Where("publishers.ero = ?", eroVal).
+		Where("publishers.r18 = ?", r18Val).
 		Find(&books)
 	tboos := titleGroupBooks(books)
 	pboos := publisherGroupBooks(tboos)
