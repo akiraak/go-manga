@@ -17,14 +17,13 @@
       </a>
       <div>
         {{range $tbook}}
-          {{if eq .PublishType "Kindle版"}}
-            <a href="{{.Url}}"><span class="badge badge-pill badge-warning">Kindle</span></a>
-          {{else if eq .PublishType "コミック"}}
-            <a href="{{.Url}}"><span class="badge badge-pill badge-info">{{.PublishType}}</span></a>
-          {{else if eq .PublishType "単行本（ソフトカバー）"}}
-            <a href="{{.Url}}"><span class="badge badge-pill badge-default">単行本</span></a>
+          {{$type := .ShortPublishTile}}
+          {{if eq $type "Kindle"}}
+            <a href="{{.Url}}"><span class="badge badge-pill badge-warning">{{$type}}</span></a>
+          {{else if eq $type "コミック"}}
+            <a href="{{.Url}}"><span class="badge badge-pill badge-info">{{$type}}</span></a>
           {{else}}
-            <a href="{{.Url}}"><span class="badge badge-pill badge-default">{{.PublishType}}</span></a>
+            <a href="{{.Url}}"><span class="badge badge-pill badge-default">{{$type}}</span></a>
           {{end}}
         {{end}}
        </div>
