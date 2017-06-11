@@ -54,6 +54,22 @@ func (b *Book) ImageUrl() string {
 	return ""
 }
 
+func (b *Book) ShortPublishTile() string {
+	switch b.PublishType {
+	case "Kindle版":
+		return "Kindle"
+	case "単行本（ソフトカバー）":
+		return "単行本"
+	default:
+		max := 6
+		str := []rune(b.PublishType)
+		if len(str) > max {
+			str = str[:max]
+		}
+		return string(str)
+	}
+}
+
 type TitleBook []Book
 
 func (tbs *TitleBook) AddBook(book Book) {
