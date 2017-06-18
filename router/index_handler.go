@@ -3,10 +3,10 @@ package router
 import (
 	"fmt"
 	"github.com/akiraak/go-manga/db"
+	"github.com/akiraak/go-manga/echo"
 	"github.com/akiraak/go-manga/elastic"
 	. "github.com/akiraak/go-manga/model"
-	"html/template"
-	"log"
+	"github.com/labstack/echo"
 	"net/http"
 	"sort"
 	"strconv"
@@ -20,6 +20,11 @@ type BaseParam struct {
 	Nav			string
 	SearchKey	string
 }
+
+var baseParam = BaseParam {
+	PageTitle,
+	"",
+	""}
 
 func (BaseParam)NowUnix() int64 {
 	return time.Now().Unix()
@@ -101,20 +106,24 @@ func daysBooks(nav string, r18 bool) DaysParam {
 	return param
 }
 
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
+func GetIndexHandler(c echo.Context) error {
 	param := daysBooks("index", false)
-	tpl := template.Must(template.ParseFiles("template/base.html", "template/index.html", "template/days_books.html"))
-	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
-		log.Println(err)
-	}
+
+	ec.E.Renderer = ec.CreateTemplate([]string{
+		"template/base.html",
+		"template/days_books.html",
+		"template/index.html"})
+	return c.Render(http.StatusOK, "base", param)
 }
 
-func R18Handler(w http.ResponseWriter, r *http.Request) {
+func GetR18Handler(c echo.Context) error {
 	param := daysBooks("r18", true)
-	tpl := template.Must(template.ParseFiles("template/base.html", "template/r18.html", "template/days_books.html"))
-	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
-		log.Println(err)
-	}
+
+	ec.E.Renderer = ec.CreateTemplate([]string{
+		"template/base.html",
+		"template/days_books.html",
+		"template/r18.html"})
+	return c.Render(http.StatusOK, "base", param)
 }
 
 func searchBooks(keyword string) ([]*TitleBook, int64, int) {
@@ -142,30 +151,26 @@ func searchBooks(keyword string) ([]*TitleBook, int64, int) {
 	return []*TitleBook{}, 0, 0
 }
 
-func SearchHandler(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	keyword := query.Get("key")
+func GetSearchHandler(c echo.Context) error {
+	keyword := c.QueryParam("key")
 	type Param struct {
 		BaseParam
 		TitleBooks	[]*TitleBook
 		HitTotal	int64
 		AsinsCount	int
 	}
-	param := Param{}
-	param.PageTitle = PageTitle
+	param := Param{BaseParam: baseParam}
 	param.Nav = "search"
 	param.SearchKey = keyword
 	param.TitleBooks, param.HitTotal, param.AsinsCount = searchBooks(keyword)
-
-	tpl := template.Must(template.ParseFiles("template/base.html", "template/search.html"))
-	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
-		log.Println(err)
-	}
+	ec.E.Renderer = ec.CreateTemplate([]string{
+		"template/base.html",
+		"template/search.html"})
+	return c.Render(http.StatusOK, "base", param)
 }
 
-func PageQuery(r *http.Request) int {
-	q := r.URL.Query()
-	page, err := strconv.Atoi(q.Get("p"))
+func PageQuery(c echo.Context) int {
+	page, err := strconv.Atoi(c.QueryParam("p"))
 	if page == 0 || err != nil {
 		page = 1
 	}

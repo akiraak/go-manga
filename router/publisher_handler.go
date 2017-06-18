@@ -2,10 +2,9 @@ package router
 
 import (
 	"github.com/akiraak/go-manga/db"
+	"github.com/akiraak/go-manga/echo"
 	. "github.com/akiraak/go-manga/model"
-	"github.com/gorilla/mux"
-	"html/template"
-	"log"
+	"github.com/labstack/echo"
 	"net/http"
 	"sort"
 	"strconv"
@@ -34,9 +33,8 @@ func publisherBooks(publisherId int64) ([]*TitleBook, int64, int) {
 	return sortedBooks, total, len(books)
 }
 
-func PublisherHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	publisherId, _ := strconv.ParseInt(vars["id"], 10, 64)
+func GetPublisherHandler(c echo.Context) error {
+	publisherId, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 
 	type Param struct {
 		BaseParam
@@ -51,8 +49,8 @@ func PublisherHandler(w http.ResponseWriter, r *http.Request) {
 	db.ORM.Where("id = ?", publisherId).First(&param.Publisher)
 	param.TitleBooks, param.HitTotal, param.AsinsCount = publisherBooks(publisherId)
 
-	tpl := template.Must(template.ParseFiles("template/base.html", "template/publisher.html"))
-	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
-		log.Println(err)
-	}
+	ec.E.Renderer = ec.CreateTemplate([]string{
+		"template/base.html",
+		"template/publisher.html"})
+	return c.Render(http.StatusOK, "base", param)
 }

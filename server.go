@@ -1,13 +1,18 @@
 package main
 
 import (
-	"github.com/akiraak/go-manga/db"
-	"github.com/akiraak/go-manga/router"
-	"github.com/gorilla/mux"
-	"io"
+	"fmt"
 	"log"
 	"net/http"
+	"github.com/akiraak/go-manga/db"
+	"github.com/akiraak/go-manga/echo"
+	"github.com/akiraak/go-manga/router"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+	"html/template"
+	"io"
 	"os"
+	"time"
 )
 
 func initLog() *os.File {
@@ -20,6 +25,35 @@ func initLog() *os.File {
 	return f
 }
 
+type Template struct {
+	templates *template.Template
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, data)
+}
+
+func getWrite(c echo.Context) error {
+	cookie := new(http.Cookie)
+	cookie.Name = "username"
+	cookie.Value = "jon2"
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	c.SetCookie(cookie)
+
+	return c.String(http.StatusOK, "Hello, World!")
+}
+
+func getRead(c echo.Context) error {
+	cookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	fmt.Println(cookie.Name)
+	fmt.Println(cookie.Value)
+
+	return c.String(http.StatusOK, "Hello, World!")
+}
+
 func main() {
 	logFile := initLog()
 	defer logFile.Close()
@@ -28,20 +62,26 @@ func main() {
 	defer db.ORM.Close()
 	//db.ORM.LogMode(true)
 
-	r := mux.NewRouter()
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
-	r.HandleFunc("/", router.IndexHandler)
-	r.HandleFunc("/r18", router.R18Handler)
-	r.HandleFunc("/publisher/{id:[0-9]+}", router.PublisherHandler)
-	r.HandleFunc("/log", router.LogHandler)
-	r.HandleFunc("/search", router.SearchHandler)
+	//ec.E.Debug = true
+
+	ec.E.Use(middleware.Logger())
+	ec.E.Use(middleware.Recover())
+	ec.E.Use(middleware.CORS())
+	ec.E.Use(middleware.Gzip())
+
+	ec.E.Static("/static", "static")
+	ec.E.GET("/", router.GetIndexHandler)
+	ec.E.GET("/r18", router.GetR18Handler)
+	ec.E.GET("/publisher/:id", router.GetPublisherHandler)
+	ec.E.GET("/search", router.GetSearchHandler)
+	ec.E.GET("/log", router.GetLogHandler)
 
 	adminPath := os.Getenv("MANGANOW_ADMIN_PATH")
 	if adminPath != "" {
 		log.Println(adminPath)
-		r.HandleFunc(adminPath + "/publisher", router.AdminPublisherHandler)
-		r.HandleFunc(adminPath + "/publisher/{id:[0-9]+}/r18", router.AdminPublisherR18Handler)
+		ec.E.GET(adminPath + "/publisher", router.GetAdminPublisherHandler)
+		ec.E.GET(adminPath + "/publisher/:id/r18", router.GetAdminPublisherR18Handler)
 	}
 
-	log.Fatal(http.ListenAndServe(":8000", r))
+	ec.E.Logger.Fatal(ec.E.Start(":8000"))
 }
