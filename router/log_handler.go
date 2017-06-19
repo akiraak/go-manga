@@ -2,13 +2,13 @@ package router
 
 import (
 	"github.com/akiraak/go-manga/db"
+	"github.com/akiraak/go-manga/echo"
 	. "github.com/akiraak/go-manga/model"
-	"html/template"
-	"log"
+	"github.com/labstack/echo"
 	"net/http"
 )
 
-func LogHandler(w http.ResponseWriter, r *http.Request) {
+func GetLogHandler(c echo.Context) error {
 	type Param struct {
 		BaseParam
 		Logs []UpdateLog
@@ -18,8 +18,8 @@ func LogHandler(w http.ResponseWriter, r *http.Request) {
 	param.Nav = "log"
 	db.ORM.Order("date desc").Find(&param.Logs)
 
-	tpl := template.Must(template.ParseFiles("template/base.html", "template/log.html"))
-	if err := tpl.ExecuteTemplate(w, "base", param); err != nil {
-		log.Println(err)
-	}
+	ec.E.Renderer = ec.CreateTemplate([]string{
+		"template/base.html",
+		"template/log.html"})
+	return c.Render(http.StatusOK, "base", param)
 }

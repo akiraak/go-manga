@@ -1,12 +1,14 @@
 package main
 
 import (
-	"github.com/akiraak/go-manga/db"
-	"github.com/akiraak/go-manga/router"
-	"github.com/gorilla/mux"
-	"io"
 	"log"
-	"net/http"
+	"github.com/akiraak/go-manga/db"
+	"github.com/akiraak/go-manga/echo"
+	"github.com/akiraak/go-manga/router"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+	"html/template"
+	"io"
 	"os"
 )
 
@@ -20,6 +22,14 @@ func initLog() *os.File {
 	return f
 }
 
+type Template struct {
+	templates *template.Template
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, data)
+}
+
 func main() {
 	logFile := initLog()
 	defer logFile.Close()
@@ -28,20 +38,32 @@ func main() {
 	defer db.ORM.Close()
 	//db.ORM.LogMode(true)
 
-	r := mux.NewRouter()
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
-	r.HandleFunc("/", router.IndexHandler)
-	r.HandleFunc("/r18", router.R18Handler)
-	r.HandleFunc("/publisher/{id:[0-9]+}", router.PublisherHandler)
-	r.HandleFunc("/log", router.LogHandler)
-	r.HandleFunc("/search", router.SearchHandler)
+	e := ec.E
+	//e.Debug = true
+
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
+	e.Use(middleware.CSRF())
+
+	e.Static("/static", "static")
+
+	ug := e.Group("")
+	ug.Use(ec.UserSessionMiddleware())
+	ug.GET("/", router.GetIndexHandler)
+	ug.GET("/r18", router.GetR18Handler)
+	ug.GET("/publisher/:id", router.GetPublisherHandler)
+	ug.GET("/search", router.GetSearchHandler)
+	ug.GET("/log", router.GetLogHandler)
 
 	adminPath := os.Getenv("MANGANOW_ADMIN_PATH")
 	if adminPath != "" {
 		log.Println(adminPath)
-		r.HandleFunc(adminPath + "/publisher", router.AdminPublisherHandler)
-		r.HandleFunc(adminPath + "/publisher/{id:[0-9]+}/r18", router.AdminPublisherR18Handler)
+		ag := e.Group(adminPath)
+		ag.GET("/publisher", router.GetAdminPublisherHandler)
+		ag.GET("/publisher/:id/r18", router.GetAdminPublisherR18Handler)
+		ag.GET("/adduser", router.GetAdminAddUserHandler)
 	}
 
-	log.Fatal(http.ListenAndServe(":8000", r))
+	ec.E.Logger.Fatal(ec.E.Start(":8000"))
 }
