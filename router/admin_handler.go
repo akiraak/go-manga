@@ -52,3 +52,13 @@ func GetAdminPublisherHandler(c echo.Context) error {
 		"template/admin_publisher.html"})
 	return c.Render(http.StatusOK, "base", param)
 }
+
+func GetAdminAddUserHandler(c echo.Context) error {
+	user := User{}
+	if db.ORM.First(&user).RecordNotFound() {
+		user.Name = "開発者"
+		db.ORM.Create(&user)
+		return c.String(http.StatusOK, "create")
+	}
+	return c.String(http.StatusOK, "exist")
+}
