@@ -1,5 +1,5 @@
 {{define "days_books"}}
-{{range .Days}}
+{{range .Data.Days}}
 <div id="books">
   <div class="title">{{printf "%d月%d日発売" .Date.Month .Date.Day}}</div>
   {{range $pkey, $tbooks := .PublisherBooks}}

@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"github.com/akiraak/go-manga/db"
-	"github.com/akiraak/go-manga/echo"
+	"github.com/akiraak/go-manga/web"
 	"github.com/akiraak/go-manga/router"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -38,8 +38,8 @@ func main() {
 	defer db.ORM.Close()
 	//db.ORM.LogMode(true)
 
-	e := ec.E
-	//e.Debug = true
+	e := web.Echo
+	e.Debug = true
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
@@ -47,13 +47,13 @@ func main() {
 	e.Use(middleware.CSRF())
 
 	e.Static("/static", "static")
+	e.Use(web.UserSessionMiddleware())
 
 	ug := e.Group("")
-	ug.Use(ec.UserSessionMiddleware())
 	ug.GET("/", router.GetIndexHandler)
 	ug.GET("/r18", router.GetR18Handler)
-	ug.GET("/publisher/:id", router.GetPublisherHandler)
 	ug.GET("/search", router.GetSearchHandler)
+	ug.GET("/publisher/:id", router.GetPublisherHandler)
 	ug.GET("/log", router.GetLogHandler)
 
 	adminPath := os.Getenv("MANGANOW_ADMIN_PATH")
@@ -63,7 +63,10 @@ func main() {
 		ag.GET("/publisher", router.GetAdminPublisherHandler)
 		ag.GET("/publisher/:id/r18", router.GetAdminPublisherR18Handler)
 		ag.GET("/adduser", router.GetAdminAddUserHandler)
+
+		aug := ag.Group("/user")
+		aug.GET("/", router.GetUserHandler)
 	}
 
-	ec.E.Logger.Fatal(ec.E.Start(":8000"))
+	e.Logger.Fatal(e.Start(":8000"))
 }

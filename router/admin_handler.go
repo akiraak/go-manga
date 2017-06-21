@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/akiraak/go-manga/db"
-	"github.com/akiraak/go-manga/echo"
+	"github.com/akiraak/go-manga/web"
 	. "github.com/akiraak/go-manga/model"
 	"github.com/akiraak/go-manga/pagination"
 	"github.com/labstack/echo"
@@ -36,9 +36,7 @@ func GetAdminPublisherHandler(c echo.Context) error {
 		Publishers	[]Publisher
 		Page		pagination.Page
 	}
-	param := Param{}
-	param.PageTitle = PageTitle
-	param.Nav = "admin_publisher"
+	param := Param{BaseParam: BaseParam{"admin_publisher", ""}}
 
 	max := 100
 	total := 0
@@ -47,10 +45,11 @@ func GetAdminPublisherHandler(c echo.Context) error {
 	param.Page = pagination.CreatePage(page, pageMax)
 	db.ORM.Order("id desc").Offset(max * (page - 1)).Limit(100).Find(&param.Publishers)
 
-	ec.E.Renderer = ec.CreateTemplate([]string{
-		"template/base.html",
-		"template/admin_publisher.html"})
-	return c.Render(http.StatusOK, "base", param)
+	return web.RenderTemplate(
+		c,
+		http.StatusOK,
+		[]string{"template/admin_publisher.html"},
+		param)
 }
 
 func GetAdminAddUserHandler(c echo.Context) error {

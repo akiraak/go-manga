@@ -5,12 +5,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>{{template "title" .}} - {{.PageTitle}}</title>
+    <title>{{template "title" .}} - {{.Title}}</title>
 
     <!-- Bootstrap core CSS -->
     <!-- <link href="../../dist/css/bootstrap.min.css" rel="stylesheet"> -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-    <link rel="stylesheet" href="/static/css/main.css?t={{.NowUnix}}">
+    <link rel="stylesheet" href="/static/css/main.css?t={{.Data.NowUnix}}">
     {{template "style" .}}
   </head>
 
@@ -20,24 +20,27 @@
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <a class="navbar-brand" href="/">{{.PageTitle}}</a>
+      <a class="navbar-brand" href="/">{{.Title}}</a>
 
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item {{if eq .Nav "index"}}active{{end}}">
+          <li class="nav-item {{if eq .Data.Nav "index"}}active{{end}}">
             <a class="nav-link" href="/">新刊<span class="sr-only">(current)</span></a>
           </li>
-          <li class="nav-item {{if eq .Nav "r18"}}active{{end}}">
+          <li class="nav-item {{if eq .Data.Nav "r18"}}active{{end}}">
             <a class="nav-link" href="/r18">R18<span class="sr-only">(current)</span></a>
           </li>
           <!--
           <li class="nav-item">
             <a class="nav-link" href="">マイ本棚</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="">{{.CC.User.Name}}の本棚</a>
+          </li>
           -->
         </ul>
         <form class="form-inline my-2 my-lg-0" action="/search" method="GET">
-          <input id="search-form" class="form-control mr-sm-2" type="text" placeholder="Search" name="key" value="{{.SearchKey}}">
+          <input id="search-form" class="form-control mr-sm-2" type="text" placeholder="Search" name="key" value="{{.Data.SearchKey}}">
           <button id="search-button" class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>
       </div>

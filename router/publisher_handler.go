@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/akiraak/go-manga/db"
-	"github.com/akiraak/go-manga/echo"
+	"github.com/akiraak/go-manga/web"
 	. "github.com/akiraak/go-manga/model"
 	"github.com/labstack/echo"
 	"net/http"
@@ -43,14 +43,13 @@ func GetPublisherHandler(c echo.Context) error {
 		HitTotal	int64
 		AsinsCount	int
 	}
-	param := Param{}
-	param.PageTitle = PageTitle
-	param.Nav = "search"
+	param := Param{BaseParam: BaseParam{"search", ""}}
 	db.ORM.Where("id = ?", publisherId).First(&param.Publisher)
 	param.TitleBooks, param.HitTotal, param.AsinsCount = publisherBooks(publisherId)
 
-	ec.E.Renderer = ec.CreateTemplate([]string{
-		"template/base.html",
-		"template/publisher.html"})
-	return c.Render(http.StatusOK, "base", param)
+	return web.RenderTemplate(
+		c,
+		http.StatusOK,
+		[]string{"template/publisher.html"},
+		param)
 }
