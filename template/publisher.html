@@ -1,12 +1,12 @@
-{{define "title"}}{{.Publisher.Name}}{{end}}
+{{define "title"}}{{.Data.Publisher.Name}}{{end}}
 
 {{define "style"}}{{end}}
 
 {{define "content"}}
 <div id="books">
-  <div class="title">{{.Publisher.Name}}</div>
-  <div class="show-count">{{.HitTotal}}件中 {{.AsinsCount}}件を表示</div>
-  {{range $tkey, $tbook := .TitleBooks}}
+  <div class="title">{{.Data.Publisher.Name}}</div>
+  <div class="show-count">{{.Data.HitTotal}}件中 {{.Data.AsinsCount}}件を表示</div>
+  {{range $tkey, $tbook := .Data.TitleBooks}}
     <div class="book">
       <a href="{{$tbook.Url}}">
 				<div class="thumbnail-container">

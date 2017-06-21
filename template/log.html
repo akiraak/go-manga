@@ -23,7 +23,7 @@
       </tr>
     </thead>
     <tbody>
-    {{range .Logs}}
+    {{range .Data.Logs}}
       <tr>
         <th scope="row">{{printf "%d-%d-%d" .Date.Year .Date.Month .Date.Day}}</th>
         <td>{{.FetchAsinCount}}</td>

@@ -15,7 +15,7 @@
 
 <nav aria-label="...">
   <ul class="pagination pagination-sm">
-    {{range .Page.Items}}
+    {{range .Data.Page.Items}}
       <li class="page-item {{if eq .Page 0}}disabled{{end}}">
         <a class="page-link" href="publisher?p={{.Page}}">{{.Str}}</a>
       </li>
@@ -35,7 +35,7 @@
       </tr>
     </thead>
     <tbody>
-    {{range .Publishers}}
+    {{range .Data.Publishers}}
       <tr>
         <td><a href="/publisher/{{.ID}}">{{.ID}}</a></td>
         <td><a href="/publisher/{{.ID}}">{{.Name}}</a></td>
@@ -62,7 +62,7 @@
 
 <nav aria-label="...">
   <ul class="pagination pagination-sm">
-    {{range .Page.Items}}
+    {{range .Data.Page.Items}}
       <li class="page-item {{if eq .Page 0}}disabled{{end}}">
         <a class="page-link" href="publisher?p={{.Page}}">{{.Str}}</a>
       </li>

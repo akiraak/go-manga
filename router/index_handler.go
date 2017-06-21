@@ -3,7 +3,7 @@ package router
 import (
 	"fmt"
 	"github.com/akiraak/go-manga/db"
-	"github.com/akiraak/go-manga/echo"
+	"github.com/akiraak/go-manga/web"
 	"github.com/akiraak/go-manga/elastic"
 	. "github.com/akiraak/go-manga/model"
 	"github.com/labstack/echo"
@@ -13,18 +13,10 @@ import (
 	"time"
 )
 
-const PageTitle = "漫画書店 ver.ω."
-
 type BaseParam struct {
-	PageTitle	string
 	Nav			string
 	SearchKey	string
 }
-
-var baseParam = BaseParam {
-	PageTitle,
-	"",
-	""}
 
 func (BaseParam)NowUnix() int64 {
 	return time.Now().Unix()
@@ -94,9 +86,7 @@ func daysBooks(nav string, r18 bool) DaysParam {
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	now := time.Now().In(jst)
 	days := 5
-	param := DaysParam{}
-	param.PageTitle = PageTitle
-	param.Nav = nav
+	param := DaysParam{BaseParam: BaseParam{nav, ""}}
 	param.Days = make([]Day, days)
 	for i := 0; i < days; i++ {
 		date := now.AddDate(0, 0, -i)
@@ -109,21 +99,25 @@ func daysBooks(nav string, r18 bool) DaysParam {
 func GetIndexHandler(c echo.Context) error {
 	param := daysBooks("index", false)
 
-	ec.E.Renderer = ec.CreateTemplate([]string{
-		"template/base.html",
-		"template/days_books.html",
-		"template/index.html"})
-	return c.Render(http.StatusOK, "base", param)
+	return web.RenderTemplate(
+		c,
+		http.StatusOK,
+		[]string{
+			"template/index.html",
+			"template/days_books.html"},
+		param)
 }
 
 func GetR18Handler(c echo.Context) error {
 	param := daysBooks("r18", true)
 
-	ec.E.Renderer = ec.CreateTemplate([]string{
-		"template/base.html",
-		"template/days_books.html",
-		"template/r18.html"})
-	return c.Render(http.StatusOK, "base", param)
+	return web.RenderTemplate(
+		c,
+		http.StatusOK,
+		[]string{
+			"template/r18.html",
+			"template/days_books.html"},
+		param)
 }
 
 func searchBooks(keyword string) ([]*TitleBook, int64, int) {
@@ -159,14 +153,14 @@ func GetSearchHandler(c echo.Context) error {
 		HitTotal	int64
 		AsinsCount	int
 	}
-	param := Param{BaseParam: baseParam}
-	param.Nav = "search"
-	param.SearchKey = keyword
+	param := Param{BaseParam: BaseParam{"search", keyword}}
 	param.TitleBooks, param.HitTotal, param.AsinsCount = searchBooks(keyword)
-	ec.E.Renderer = ec.CreateTemplate([]string{
-		"template/base.html",
-		"template/search.html"})
-	return c.Render(http.StatusOK, "base", param)
+
+	return web.RenderTemplate(
+		c,
+		http.StatusOK,
+		[]string{"template/search.html"},
+		param)
 }
 
 func PageQuery(c echo.Context) int {
