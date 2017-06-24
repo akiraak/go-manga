@@ -1,0 +1,33 @@
+{{define "books"}}
+<div class="show-count">{{.Data.HitTotal}}件中 {{.Data.AsinsCount}}件を表示</div>
+{{range $tkey, $tbook := .Data.TitleBooks}}
+  <div class="book">
+    <a href="{{$tbook.Url}}">
+      <div class="thumbnail-container">
+        {{if $tbook.ImageURL}}
+          <img class="thumbnail rounded" src="{{$tbook.ImageURL}}">
+        {{else}}
+          <div class="thumbnail thumbnail-text">{{$tbook.Name}}</div>
+        {{end}}
+        {{$date := $tbook.DatePublishTime}}
+        <div class="thumbnail-date">{{printf "%d年%d月%d日" $date.Year $date.Month $date.Day}}</div>
+      </div>
+      <div class="book-title">{{$tbook.Name}}</div>
+    </a>
+    <div>
+      {{range $tbook}}
+        {{if eq .PublishType "Kindle版"}}
+          <a href="{{.Url}}"><span class="badge badge-pill badge-warning">Kindle</span></a>
+        {{else if eq .PublishType "コミック"}}
+          <a href="{{.Url}}"><span class="badge badge-pill badge-info">{{.PublishType}}</span></a>
+        {{else if eq .PublishType "単行本（ソフトカバー）"}}
+          <a href="{{.Url}}"><span class="badge badge-pill badge-default">単行本</span></a>
+        {{else}}
+          <a href="{{.Url}}"><span class="badge badge-pill badge-default">{{.PublishType}}</span></a>
+        {{end}}
+      {{end}}
+     </div>
+  </div>
+{{end}}
+<div class="claer-both" />
+{{end}}

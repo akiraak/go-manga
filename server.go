@@ -52,6 +52,7 @@ func main() {
 	ug := e.Group("")
 	ug.GET("/", router.GetIndexHandler)
 	ug.GET("/r18", router.GetR18Handler)
+	ug.GET("/dev", router.GetDeveloperHandler)
 	ug.GET("/search", router.GetSearchHandler)
 	ug.GET("/publisher/:id", router.GetPublisherHandler)
 	ug.GET("/log", router.GetLogHandler)
@@ -65,7 +66,7 @@ func main() {
 		ag.GET("/adduser", router.GetAdminAddUserHandler)
 
 		aug := ag.Group("/user")
-		aug.GET("/", router.GetUserHandler)
+		aug.GET("", router.GetUserHandler)
 	}
 
 	e.Logger.Fatal(e.Start(":8000"))

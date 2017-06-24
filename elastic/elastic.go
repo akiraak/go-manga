@@ -6,13 +6,15 @@ import (
 	"fmt"
 	"gopkg.in/olivere/elastic.v5"
 	"os"
+	"time"
 )
 
 type AsinParam struct {
-	Title		string	`json:"title"`
-	Publisher	string	`json:"publisher"`
-	Author		string	`json:"author"`
-	AllText		string	`json:"all_text"`
+	Title		string		`json:"title"`
+	Publisher	string		`json:"publisher"`
+	Author		string		`json:"author"`
+	AllText		string		`json:"all_text"`
+	DatePublish	time.Time	`json:"date_publish"`
 }
 
 func (a *AsinParam)MakeAllText() {
@@ -86,11 +88,49 @@ func SearchAsins(keyword string) ([]AsinRecord, int64) {
 	if err != nil {
 		return results, 0
 	}
-	query := elastic.NewMatchQuery("all_text", keyword).Operator("and")
+	query := elastic.NewMatchQuery("all_text", keyword).
+		Operator("and")
 	searchResult, err := client.Search().
 		Index("asins").
 		Type("asin").
 		Query(query).
+		Sort("date_publish", false).
+		From(0).Size(200).
+		Do(ctx)
+	if err == nil {
+		hitTotal = searchResult.Hits.TotalHits
+		if searchResult.Hits.TotalHits > 0 {
+			for _, hit := range searchResult.Hits.Hits {
+				var a AsinParam
+				err := json.Unmarshal(*hit.Source, &a)
+				if err != nil {
+					continue
+				}
+				results = append(results, AsinRecord{a, hit.Id})
+			}
+		}
+	}
+	return results, hitTotal
+}
+
+func SearchUserAsins(keywords []string) ([]AsinRecord, int64) {
+	results := []AsinRecord{}
+	hitTotal := int64(0)
+	ctx, client, err := newClient()
+	if err != nil {
+		return results, 0
+	}
+	matches := []elastic.Query{}
+	for _, keyword := range keywords {
+		m := elastic.NewMatchPhraseQuery("title", keyword)
+		matches = append(matches, m)
+	}
+	query := elastic.NewBoolQuery().Should(matches...)
+	searchResult, err := client.Search().
+		Index("asins").
+		Type("asin").
+		Query(query).
+		Sort("date_publish", false).
 		From(0).Size(200).
 		Do(ctx)
 	if err == nil {
