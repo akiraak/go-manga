@@ -5,7 +5,7 @@
   {{range $pkey, $tbooks := .PublisherBooks}}
     {{range $tkey, $tbook := $tbooks}}
     <div class="book">
-      <a href="{{$tbook.Url}}">
+      <a href="{{$tbook.Url}}" target="_blank">
         <div class="thumbnail-container">
           {{if $tbook.ImageURL}}
             <img class="thumbnail rounded" src="{{$tbook.ImageURL}}">
@@ -19,11 +19,11 @@
         {{range $tbook}}
           {{$type := .ShortPublishTile}}
           {{if eq $type "Kindle"}}
-            <a href="{{.Url}}"><span class="badge badge-pill badge-warning">{{$type}}</span></a>
+            <a href="{{.Url}}" target="_blank"><span class="badge badge-pill badge-warning">{{$type}}</span></a>
           {{else if eq $type "コミック"}}
-            <a href="{{.Url}}"><span class="badge badge-pill badge-info">{{$type}}</span></a>
+            <a href="{{.Url}}" target="_blank"><span class="badge badge-pill badge-info">{{$type}}</span></a>
           {{else}}
-            <a href="{{.Url}}"><span class="badge badge-pill badge-default">{{$type}}</span></a>
+            <a href="{{.Url}}" target="_blank"><span class="badge badge-pill badge-default">{{$type}}</span></a>
           {{end}}
         {{end}}
        </div>

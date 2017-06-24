@@ -70,6 +70,19 @@ func (b *Book) ShortPublishTile() string {
 	}
 }
 
+func (b *Book) DatePublishTime() time.Time {
+	t := time.Time{}
+	if(len(b.DatePublish) >= 8) {
+		year, _ := strconv.Atoi(b.DatePublish[0:4])
+		month, _ := strconv.Atoi(b.DatePublish[4:6])
+		day, _ := strconv.Atoi(b.DatePublish[6:8])
+		t = time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+	} else {
+		fmt.Println("ERROR: length of Book.DatePublish is shorter than 8.", b.DatePublish)
+	}
+	return t
+}
+
 type TitleBook []Book
 
 func (tbs *TitleBook) AddBook(book Book) {
@@ -112,12 +125,7 @@ func (tbs *TitleBook) DatePublish() string {
 }
 
 func (tbs *TitleBook) DatePublishTime() time.Time {
-	timeStr := tbs.DatePublish()
-	year, _ := strconv.Atoi(timeStr[0:4])
-	month, _ := strconv.Atoi(timeStr[4:6])
-	day, _ := strconv.Atoi(timeStr[6:8])
-	time := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
-	return time
+	return (*tbs)[0].DatePublishTime()
 }
 
 func prio(publishType string) int {

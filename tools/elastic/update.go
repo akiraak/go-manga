@@ -29,7 +29,16 @@ func main() {
 			title := CleanName(book.Name)
 			publisherName := CleanName(publisher.Name)
 			authorName := CleanName(author.Name)
-			records = append(records, elastic.AsinRecord{elastic.AsinParam{title, publisherName, authorName, ""}, book.Asin})
+			records = append(
+				records,
+				elastic.AsinRecord{
+					elastic.AsinParam{
+						title,
+						publisherName,
+						authorName,
+						"",
+						book.DatePublishTime()},
+					book.Asin})
 		}
 		fmt.Printf("%d%% : %d / %d\n", (i * max * 100  / total), i * max, total)
 		if len(books) == 0 {

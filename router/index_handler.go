@@ -122,25 +122,9 @@ func GetR18Handler(c echo.Context) error {
 
 func searchBooks(keyword string) ([]*TitleBook, int64, int) {
 	if len(keyword) > 1 {
-		searchBooks, hitTotal := elastic.SearchAsins(keyword)
-		ids := make([]string, len(searchBooks))
-		for _, book := range searchBooks {
-			ids = append(ids, book.Asin)
-		}
-
-		books := []Book{}
-		db.ORM.Where("asin IN (?)", ids).Find(&books)
-		tbooks := titleGroupBooks(books)
-		sortedBooks := []*TitleBook{}
-		for _, tbook := range tbooks {
-			sortedBooks = append(sortedBooks, tbook)
-		}
-		sort.Slice(sortedBooks, func(i, j int) bool {
-			int1, _ := strconv.Atoi(sortedBooks[i].DatePublish())
-			int2, _ := strconv.Atoi(sortedBooks[j].DatePublish())
-			return int1 > int2
-		})
-		return sortedBooks, hitTotal, len(searchBooks)
+		asins, hitTotal := elastic.SearchAsins(keyword)
+		books := booksWithAsins(asins)
+		return books, hitTotal, len(asins)
 	}
 	return []*TitleBook{}, 0, 0
 }
@@ -159,7 +143,109 @@ func GetSearchHandler(c echo.Context) error {
 	return web.RenderTemplate(
 		c,
 		http.StatusOK,
-		[]string{"template/search.html"},
+		[]string{
+			"template/search.html",
+			"template/books.html"},
+		param)
+}
+
+func booksWithAsins(asins []elastic.AsinRecord) []*TitleBook {
+	ids := make([]string, len(asins))
+	for _, asin := range asins {
+		ids = append(ids, asin.Asin)
+	}
+
+	books := []Book{}
+	db.ORM.Where("asin IN (?)", ids).Find(&books)
+	tbooks := titleGroupBooks(books)
+	sortedBooks := []*TitleBook{}
+	for _, tbook := range tbooks {
+		sortedBooks = append(sortedBooks, tbook)
+	}
+	sort.Slice(sortedBooks, func(i, j int) bool {
+		int1, _ := strconv.Atoi(sortedBooks[i].DatePublish())
+		int2, _ := strconv.Atoi(sortedBooks[j].DatePublish())
+		return int1 > int2
+	})
+	return sortedBooks
+}
+
+func searchUserBooks(keywords []string) ([]*TitleBook, int64, int) {
+	if len(keywords) > 1 {
+		asins, hitTotal := elastic.SearchUserAsins(keywords)
+		books := booksWithAsins(asins)
+		return books, hitTotal, len(asins)
+	}
+	return []*TitleBook{}, 0, 0
+}
+
+func GetDeveloperHandler(c echo.Context) error {
+	keywords := []string{
+		"HUNTER×HUNTER",
+		"ヴィンランド・サガ",
+		"落日のパトス",
+		"狼と香辛料",
+		"食戟のソーマ",
+		"小説家になる方法",
+		"重版出来",
+		"山と食欲と私",
+		"釣り船御前丸",
+		"木根さんの1人でキネマ",
+		"インベスターZ",
+		"波よ聞いてくれ",
+		"食戟のソーマ",
+		"アルキメデスの大戦",
+		"ふらいんぐうぃっち",
+		"亜人",
+		"宇宙兄弟",
+		"BLUE GIANT",
+		"ベイビーステップ",
+		"ハイスコアガール",
+		"蛇蔵",
+		"僕らはみんな河合荘",
+		"のの湯",
+		"百姓貴族",
+		"ドロヘドロ",
+		"からかい上手の高木さん",
+		"乙嫁語り",
+		"ばらかもん",
+		"君に届け",
+		"のんのんびより",
+		"海街diary",
+		"後遺症ラジオ",
+		"ワンパンマン",
+		"いぶり暮らし",
+		"ヒストリエ",
+		"つれづれダイアリー",
+		"ダンジョン飯",
+		"メイドインアビス",
+		"ドメスティックな彼女",
+		"東京喰種",
+		"進撃の巨人",
+		"アオバ自転車店",
+		"ちはやふる",
+		"甘々と稲妻",
+		"ろんぐらいだぁす",
+		"はたらく細胞",
+		"あさひなぐ",
+	}
+	type Param struct {
+		BaseParam
+		TitleBooks	[]*TitleBook
+		HitTotal	int64
+		AsinsCount	int
+		Tags		[]string
+	}
+	param := Param{BaseParam: BaseParam{"dev", ""}}
+	param.TitleBooks, param.HitTotal, param.AsinsCount = searchUserBooks(keywords)
+	param.Tags = keywords
+
+	return web.RenderTemplate(
+		c,
+		http.StatusOK,
+		[]string{
+			"template/user_books.html",
+			"template/books.html"},
 		param)
 }
 

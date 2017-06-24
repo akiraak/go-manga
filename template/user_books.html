@@ -1,0 +1,20 @@
+{{define "title"}}開発者の本棚{{end}}
+
+{{define "style"}}{{end}}
+
+{{define "content"}}
+<div id="books">
+  <div class="title">開発者の本棚</div>
+  {{template "books" .}}
+  <div class="dev-tags">
+    <div>タグ一覧</div>
+    <ul>
+      {{range .Data.Tags}}
+      <li>{{.}}</li>
+      {{end}}
+    </ul>
+  </div>
+</div>
+{{end}}
+
+{{define "script"}}{{end}}
