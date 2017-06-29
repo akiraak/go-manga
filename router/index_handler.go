@@ -6,7 +6,9 @@ import (
 	"github.com/akiraak/go-manga/web"
 	"github.com/akiraak/go-manga/elastic"
 	. "github.com/akiraak/go-manga/model"
+	"github.com/akiraak/go-manga/pagination"
 	"github.com/labstack/echo"
+	"math"
 	"net/http"
 	"sort"
 	"strconv"
@@ -120,9 +122,9 @@ func GetR18Handler(c echo.Context) error {
 		param)
 }
 
-func searchBooks(keyword string) ([]*TitleBook, int64, int) {
+func searchBooks(keyword string, offset int, limit int) ([]*TitleBook, int64, int) {
 	if len(keyword) > 1 {
-		asins, hitTotal := elastic.SearchAsins(keyword)
+		asins, hitTotal := elastic.SearchAsins(keyword, offset, limit)
 		books := booksWithAsins(asins)
 		return books, hitTotal, len(asins)
 	}
@@ -131,21 +133,42 @@ func searchBooks(keyword string) ([]*TitleBook, int64, int) {
 
 func GetSearchHandler(c echo.Context) error {
 	keyword := c.QueryParam("key")
+	page := PageQuery(c)
 	type Param struct {
 		BaseParam
 		TitleBooks	[]*TitleBook
-		HitTotal	int64
-		AsinsCount	int
+		Page		pagination.Page
 	}
+	bookMax := 10000
+	limit := 200
+	pageMax := bookMax / limit
+	if page > pageMax {
+		page = pageMax
+	}
+	offset := limit * (page - 1)
 	param := Param{BaseParam: BaseParam{"search", keyword}}
-	param.TitleBooks, param.HitTotal, param.AsinsCount = searchBooks(keyword)
+	titleBooks, hitTotal, asinsCount := searchBooks(keyword, offset, limit)
+	param.TitleBooks = titleBooks
+
+	showPageMax := int(math.Ceil(float64(hitTotal) / float64(limit)))
+	if showPageMax > pageMax {
+		showPageMax = pageMax
+	}
+
+	param.Page = pagination.CreatePage(
+		page,
+		showPageMax,
+		int(hitTotal),
+		offset + 1,
+		offset + asinsCount)
 
 	return web.RenderTemplate(
 		c,
 		http.StatusOK,
 		[]string{
 			"template/search.html",
-			"template/books.html"},
+			"template/books.html",
+			"template/pagination.html"},
 		param)
 }
 
@@ -170,9 +193,9 @@ func booksWithAsins(asins []elastic.AsinRecord) []*TitleBook {
 	return sortedBooks
 }
 
-func searchUserBooks(keywords []string) ([]*TitleBook, int64, int) {
+func searchUserBooks(keywords []string, offset int, limit int) ([]*TitleBook, int64, int) {
 	if len(keywords) > 1 {
-		asins, hitTotal := elastic.SearchUserAsins(keywords)
+		asins, hitTotal := elastic.SearchUserAsins(keywords, offset, limit)
 		books := booksWithAsins(asins)
 		return books, hitTotal, len(asins)
 	}
@@ -232,20 +255,42 @@ func GetDeveloperHandler(c echo.Context) error {
 	type Param struct {
 		BaseParam
 		TitleBooks	[]*TitleBook
-		HitTotal	int64
-		AsinsCount	int
 		Tags		[]string
+		Page		pagination.Page
 	}
 	param := Param{BaseParam: BaseParam{"dev", ""}}
-	param.TitleBooks, param.HitTotal, param.AsinsCount = searchUserBooks(keywords)
+	page := PageQuery(c)
+
+	bookMax := 10000
+	limit := 200
+	pageMax := bookMax / limit
+	if page > pageMax {
+		page = pageMax
+	}
+	offset := limit * (page - 1)
+	titleBooks, hitTotal, asinsCount := searchUserBooks(keywords, offset, limit)
+	param.TitleBooks = titleBooks
 	param.Tags = keywords
+
+	showPageMax := int(math.Ceil(float64(hitTotal) / float64(limit)))
+	if showPageMax > pageMax {
+		showPageMax = pageMax
+	}
+
+	param.Page = pagination.CreatePage(
+		page,
+		showPageMax,
+		int(hitTotal),
+		offset + 1,
+		offset + asinsCount)
 
 	return web.RenderTemplate(
 		c,
 		http.StatusOK,
 		[]string{
 			"template/user_books.html",
-			"template/books.html"},
+			"template/books.html",
+			"template/pagination.html"},
 		param)
 }
 

@@ -1,5 +1,4 @@
 {{define "books"}}
-<div class="show-count">{{.Data.HitTotal}}件中 {{.Data.AsinsCount}}件を表示</div>
 {{range $tkey, $tbook := .Data.TitleBooks}}
   <div class="book">
     <a href="{{$tbook.Url}}" target="_blank">

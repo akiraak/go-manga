@@ -5,7 +5,10 @@
 {{define "content"}}
 <div id="books">
   <div class="title">開発者の本棚</div>
+  {{template "pagination" .}}
+  {{template "pagination_count" .}}
   {{template "books" .}}
+  {{template "pagination" .}}
   <div class="dev-tags">
     <div>タグ一覧</div>
     <ul>

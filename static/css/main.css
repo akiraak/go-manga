@@ -19,7 +19,7 @@ footer {
   font-size: 20px;
   font-weight: bold;
 }
-#books .show-count {
+.show-count {
   margin: 0 0 10px 0;
   font-size: 12px;
 }

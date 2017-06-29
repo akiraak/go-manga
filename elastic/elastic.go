@@ -83,7 +83,7 @@ func BulkAsinIndex(records []AsinRecord) int {
 	return updatedIndex
 }
 
-func SearchAsins(keyword string) ([]AsinRecord, int64) {
+func SearchAsins(keyword string, offset int, limit int) ([]AsinRecord, int64) {
 	results := []AsinRecord{}
 	hitTotal := int64(0)
 	ctx, client, err := newClient()
@@ -97,7 +97,7 @@ func SearchAsins(keyword string) ([]AsinRecord, int64) {
 		Type("asin").
 		Query(query).
 		Sort("date_publish", false).
-		From(0).Size(200).
+		From(offset).Size(limit).
 		Do(ctx)
 	if err == nil {
 		hitTotal = searchResult.Hits.TotalHits
@@ -115,7 +115,7 @@ func SearchAsins(keyword string) ([]AsinRecord, int64) {
 	return results, hitTotal
 }
 
-func SearchUserAsins(keywords []string) ([]AsinRecord, int64) {
+func SearchUserAsins(keywords []string, offset int, limit int) ([]AsinRecord, int64) {
 	results := []AsinRecord{}
 	hitTotal := int64(0)
 	ctx, client, err := newClient()
@@ -133,7 +133,7 @@ func SearchUserAsins(keywords []string) ([]AsinRecord, int64) {
 		Type("asin").
 		Query(query).
 		Sort("date_publish", false).
-		From(0).Size(200).
+		From(offset).Size(limit).
 		Do(ctx)
 	if err == nil {
 		hitTotal = searchResult.Hits.TotalHits
