@@ -15,7 +15,7 @@ func main() {
 	total := 0
 	db.ORM.Table("books").Count(&total)
 
-	records := []elastic.AsinRecord{}
+	records := make([]elastic.AsinRecord, total)
 	max := 1000
 	for i := 0; ; i++ {
 		books := []Book{}

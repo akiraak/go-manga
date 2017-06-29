@@ -39,6 +39,7 @@ func newClient() (context.Context, *elastic.Client, error) {
 }
 
 func BulkAsinIndex(records []AsinRecord) int {
+	fmt.Printf("BulkAsinIndex: total=%d\n", len(records))
 	updatedIndex := 0
 	max := 20000
 	for i := 0; ; i++ {
@@ -73,6 +74,7 @@ func BulkAsinIndex(records []AsinRecord) int {
 		}
 		updatedIndex += len(bulkResponse.Indexed())
 
+		fmt.Printf("%d%% : start:%d end:%d\n", (i * max * 100 / len(records)), start, end)
 		if end >= len(records) {
 			break
 		}
