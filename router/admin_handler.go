@@ -38,17 +38,25 @@ func GetAdminPublisherHandler(c echo.Context) error {
 	}
 	param := Param{BaseParam: BaseParam{"admin_publisher", ""}}
 
-	max := 100
+	limit := 100
 	total := 0
 	db.ORM.Table("publishers").Count(&total)
-	pageMax := int(math.Ceil(float64(total) / float64(max)))
-	param.Page = pagination.CreatePage(page, pageMax)
-	db.ORM.Order("id desc").Offset(max * (page - 1)).Limit(100).Find(&param.Publishers)
+	pageMax := int(math.Ceil(float64(total) / float64(limit)))
+	offset := limit * (page - 1)
+	db.ORM.Order("id desc").Offset(offset).Limit(100).Find(&param.Publishers)
+	param.Page = pagination.CreatePage(
+		page,
+		pageMax,
+		total,
+		offset + 1,
+		offset + len(param.Publishers))
 
 	return web.RenderTemplate(
 		c,
 		http.StatusOK,
-		[]string{"template/admin_publisher.html"},
+		[]string{
+			"template/admin_publisher.html",
+			"template/pagination.html"},
 		param)
 }
 

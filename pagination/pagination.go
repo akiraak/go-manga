@@ -10,12 +10,15 @@ type PageItem struct {
 }
 
 type Page struct {
-	Items	[]PageItem
-	MaxPage	int
+	Items		[]PageItem
+	MaxPage		int
+	Total		int
+	FromIndex	int
+	ToIndex		int
 }
 
-func CreatePage(currentPage, maxPage int) Page {
-	page := Page{}
+func CreatePage(currentPage, maxPage, total, fromIndex, toIndex int) Page {
+	page := Page{[]PageItem{}, 0, total, fromIndex, toIndex}
 	page.MaxPage = maxPage
 	printMaxPage := 7
 
@@ -50,7 +53,7 @@ func CreatePage(currentPage, maxPage int) Page {
 	}
 
 	// Next
-	if endPage <= (maxPage - (printMaxPage / 2) + 1) {
+	if endPage <= (maxPage - (printMaxPage / 2) + 2) {
 		page.Items = append(page.Items, PageItem{0, "..."})
 		page.Items = append(page.Items, PageItem{maxPage, strconv.Itoa(maxPage)})
 	}

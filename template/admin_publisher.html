@@ -13,15 +13,8 @@
 {{define "content"}}
 <h1>出版社一覧</h1>
 
-<nav aria-label="...">
-  <ul class="pagination pagination-sm">
-    {{range .Data.Page.Items}}
-      <li class="page-item {{if eq .Page 0}}disabled{{end}}">
-        <a class="page-link" href="publisher?p={{.Page}}">{{.Str}}</a>
-      </li>
-    {{end}}
-  </ul>
-</nav>
+{{template "pagination" .}}
+{{template "pagination_count" .}}
 
 <section class="publishers">
   <table class="table table-sm">
@@ -60,15 +53,7 @@
   </table>
 </section>
 
-<nav aria-label="...">
-  <ul class="pagination pagination-sm">
-    {{range .Data.Page.Items}}
-      <li class="page-item {{if eq .Page 0}}disabled{{end}}">
-        <a class="page-link" href="publisher?p={{.Page}}">{{.Str}}</a>
-      </li>
-    {{end}}
-  </ul>
-</nav>
+{{template "pagination" .}}
 {{end}}
 
 {{define "script"}}

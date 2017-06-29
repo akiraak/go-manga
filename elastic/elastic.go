@@ -39,6 +39,7 @@ func newClient() (context.Context, *elastic.Client, error) {
 }
 
 func BulkAsinIndex(records []AsinRecord) int {
+	fmt.Printf("BulkAsinIndex: total=%d\n", len(records))
 	updatedIndex := 0
 	max := 20000
 	for i := 0; ; i++ {
@@ -73,6 +74,7 @@ func BulkAsinIndex(records []AsinRecord) int {
 		}
 		updatedIndex += len(bulkResponse.Indexed())
 
+		fmt.Printf("%d%% : start:%d end:%d\n", (i * max * 100 / len(records)), start, end)
 		if end >= len(records) {
 			break
 		}
@@ -81,7 +83,7 @@ func BulkAsinIndex(records []AsinRecord) int {
 	return updatedIndex
 }
 
-func SearchAsins(keyword string) ([]AsinRecord, int64) {
+func SearchAsins(keyword string, offset int, limit int) ([]AsinRecord, int64) {
 	results := []AsinRecord{}
 	hitTotal := int64(0)
 	ctx, client, err := newClient()
@@ -95,7 +97,7 @@ func SearchAsins(keyword string) ([]AsinRecord, int64) {
 		Type("asin").
 		Query(query).
 		Sort("date_publish", false).
-		From(0).Size(200).
+		From(offset).Size(limit).
 		Do(ctx)
 	if err == nil {
 		hitTotal = searchResult.Hits.TotalHits
@@ -113,7 +115,7 @@ func SearchAsins(keyword string) ([]AsinRecord, int64) {
 	return results, hitTotal
 }
 
-func SearchUserAsins(keywords []string) ([]AsinRecord, int64) {
+func SearchUserAsins(keywords []string, offset int, limit int) ([]AsinRecord, int64) {
 	results := []AsinRecord{}
 	hitTotal := int64(0)
 	ctx, client, err := newClient()
@@ -131,7 +133,7 @@ func SearchUserAsins(keywords []string) ([]AsinRecord, int64) {
 		Type("asin").
 		Query(query).
 		Sort("date_publish", false).
-		From(0).Size(200).
+		From(offset).Size(limit).
 		Do(ctx)
 	if err == nil {
 		hitTotal = searchResult.Hits.TotalHits

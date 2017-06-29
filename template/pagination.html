@@ -1,0 +1,15 @@
+{{define "pagination"}}
+<nav aria-label="...">
+  <ul class="pagination pagination-sm">
+    {{range .Data.Page.Items}}
+      <li class="page-item {{if eq .Page 0}}disabled{{end}}">
+        <a class="page-link" href="{{$.C.Path}}?{{if $.Data.SearchKey}}key={{$.Data.SearchKey}}&{{end}}p={{.Page}}">{{.Str}}</a>
+      </li>
+    {{end}}
+  </ul>
+</nav>
+{{end}}
+
+{{define "pagination_count"}}
+<div class="show-count">{{.Data.Page.Total}} 件中 {{.Data.Page.FromIndex}} - {{.Data.Page.ToIndex}}</div>
+{{end}}

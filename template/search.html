@@ -5,7 +5,10 @@
 {{define "content"}}
 <div id="books">
   <div class="title">検索ワード：{{.Data.SearchKey}}</div>
+  {{template "pagination" .}}
+  {{template "pagination_count" .}}
   {{template "books" .}}
+  {{template "pagination" .}}
 </div>
 {{end}}
 
