@@ -250,7 +250,7 @@ func GetDeveloperHandler(c echo.Context) error {
 		"甘々と稲妻",
 		"ろんぐらいだぁす",
 		"はたらく細胞",
-		"あさひなぐ",
+		"猫のお寺の知恩さん",
 	}
 	type Param struct {
 		BaseParam
