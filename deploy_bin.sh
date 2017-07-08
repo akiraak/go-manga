@@ -1,0 +1,16 @@
+#!/bin/sh
+export GOOS=linux
+export GOARCH=amd64
+BIN_PATH="~/go/src/github.com/akiraak/go-manga/"
+
+go build server.go
+scp server gmanganow:$BIN_PATH
+echo Built server
+
+go build update_books.go
+scp update_books gmanganow:$BIN_PATH
+echo Built update_books
+
+go build mailfile.go
+scp mailfile gmanganow:$BIN_PATH
+echo Deployed mailfile
