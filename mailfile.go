@@ -6,7 +6,6 @@ import (
 	"github.com/sourcegraph/go-ses"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 )
 
 func isFile(file string) bool {
@@ -31,13 +30,12 @@ func main() {
 
 	if isFile(file) {
 		fmt.Println("Exist:", file)
-		filename := filepath.Base(file)
 		content, _ := ioutil.ReadFile(file)
 
 		res, err := ses.EnvConfig.SendEmail(
 			"akiraak@gmail.com",
 			"akiraak@gmail.com",
-			fmt.Sprintf("Exist file: %s", filename),
+			fmt.Sprintf("Exist file: %s", file),
 			string(content))
 		if err == nil {
 			fmt.Printf("Sent email: %s...\n", res[:32])
