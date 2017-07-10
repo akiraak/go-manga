@@ -33,14 +33,9 @@
           <li class="nav-item {{if eq .Data.Nav "dev"}}active{{end}}">
             <a class="nav-link" href="/dev">開発者の本棚<span class="sr-only">(current)</span></a>
           </li>
-          <!--
-          <li class="nav-item">
-            <a class="nav-link" href="">マイ本棚</a>
+          <li class="nav-item {{if eq .Data.Nav "bbs"}}active{{end}}">
+            <a class="nav-link" href="/bbs">掲示板<span class="sr-only">(current)</span></a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="">{{.CC.User.Name}}の本棚</a>
-          </li>
-          -->
         </ul>
         <form class="form-inline my-2 my-lg-0" action="/search" method="GET">
           <input id="search-form" class="form-control mr-sm-2" type="text" placeholder="Search" name="key" value="{{.Data.SearchKey}}">

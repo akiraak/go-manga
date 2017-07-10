@@ -1,0 +1,40 @@
+{{define "title"}}掲示板{{end}}
+
+{{define "style"}}{{end}}
+
+{{define "content"}}
+<section id="bbs">
+  <h1>掲示板</h1>
+  <div class="add-comment">
+    <form action="/bbs/add" method="post">
+      <input type="hidden" name="csrf" value="{{.C.Get "csrf"}}">
+      <div class="form-group">
+        <label for="inputName">名前</label>
+        <input type="text" class="form-control" id="inputName" name="name" aria-describedby="emailHelp">
+      </div>
+      <div class="form-group">
+        <label for="textarea">コメント</label>
+        <textarea class="form-control" id="textarea"  name="comment" rows="3"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">書き込む</button>
+    </form>
+  </div>
+  <div id="comments">
+    {{range .Data.Comments}}
+    <div class="comment">
+      <div class="comment-header">
+        <span class="id">{{.ID}}</span>
+        <span class="name">{{.Name}}</span>
+        <span class="date">
+          {{$date := .UpdatedAtJp}}
+          {{printf "%d-%d-%d %d:%02d" $date.Year $date.Month $date.Day $date.Hour $date.Minute}}
+        </span>
+      </div>
+      <div class="comment-body">{{.Comment}}</div>
+    </div>
+    {{end}}
+  </div>
+</section>
+{{end}}
+
+{{define "script"}}{{end}}

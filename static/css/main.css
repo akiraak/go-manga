@@ -106,3 +106,31 @@ footer {
 .dev-tags {
   font-size: 10px;
 }
+#bbs #comments {
+  margin: 20px 0 0 0;
+}
+#bbs #comments .comment {
+  color: #464a4c;
+  border: none;
+  border-top: 1px solid rgba(0,0,0,.15);
+  padding: 24px 0;
+}
+#bbs #comments .comment .comment-header {
+   font-size: 10px;
+}
+#bbs #comments .comment .comment-header .id {
+  margin-right: 10px;
+}
+#bbs #comments .comment .comment-header .name {
+  margin-right: 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
+#bbs #comments .comment .comment-header .date {
+  margin-right: 10px;
+}
+#bbs #comments .comment .comment-body {
+  margin-top: 6px;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
