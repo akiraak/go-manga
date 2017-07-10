@@ -44,7 +44,9 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
-	e.Use(middleware.CSRF())
+	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLookup: "form:csrf",
+	}))
 
 	e.Static("/static", "static")
 	e.Use(web.UserSessionMiddleware())
@@ -55,6 +57,8 @@ func main() {
 	ug.GET("/dev", router.GetDeveloperHandler)
 	ug.GET("/search", router.GetSearchHandler)
 	ug.GET("/publisher/:id", router.GetPublisherHandler)
+	ug.GET("/bbs", router.GetBbsHandler)
+	ug.POST("/bbs/add", router.PostBbsAddHandler)
 	ug.GET("/log", router.GetLogHandler)
 
 	adminPath := os.Getenv("MANGANOW_ADMIN_PATH")
