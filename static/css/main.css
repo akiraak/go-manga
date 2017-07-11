@@ -134,3 +134,11 @@ footer {
   font-size: 14px;
   white-space: pre-wrap;
 }
+#bbs #add-comment {
+  display: none;
+}
+#bbs #explanation {
+  color: #464a4c;
+  font-size: 14px;
+  margin: 0 0 14px 0;
+}
