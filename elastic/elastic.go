@@ -124,7 +124,7 @@ func SearchUserAsins(keywords []string, offset int, limit int) ([]AsinRecord, in
 	}
 	matches := []elastic.Query{}
 	for _, keyword := range keywords {
-		m := elastic.NewMatchPhraseQuery("title", keyword)
+		m := elastic.NewMatchPhraseQuery("all_text", keyword)
 		matches = append(matches, m)
 	}
 	query := elastic.NewBoolQuery().Should(matches...)
