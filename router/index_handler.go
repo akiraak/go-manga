@@ -252,6 +252,8 @@ func GetDeveloperHandler(c echo.Context) error {
 		"はたらく細胞",
 		"猫のお寺の知恩さん",
 		"ウーパ",
+		"ゆるキャン",
+		"平方イコルスン",
 	}
 	type Param struct {
 		BaseParam
