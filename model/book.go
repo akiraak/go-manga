@@ -85,30 +85,30 @@ func (b *Book) DatePublishTime() time.Time {
 
 type TitleBook []Book
 
-func (tbs *TitleBook) AddBook(book Book) {
-	*tbs = append(*tbs, book)
-	tbs.sorte()
+func (tb *TitleBook) AddBook(book Book) {
+	*tb = append(*tb, book)
+	tb.sort()
 }
 
-func (tbs *TitleBook) PublisherID() int64 {
-	if (*tbs)[0].PublisherID.Valid {
-		return (*tbs)[0].PublisherID.Int64
+func (tb *TitleBook) PublisherID() int64 {
+	if (*tb)[0].PublisherID.Valid {
+		return (*tb)[0].PublisherID.Int64
 	}
 	return 0
 }
 
-func (tbs *TitleBook) Url() string {
-	return (*tbs)[0].Url()
+func (tb *TitleBook) Url() string {
+	return (*tb)[0].Url()
 }
 
-func (tbs *TitleBook) Name() string {
-	return (*tbs)[0].Name
+func (tb *TitleBook) Name() string {
+	return (*tb)[0].Name
 }
 
-func (tbs *TitleBook) ImageURL() string {
+func (tb *TitleBook) ImageURL() string {
 	names := []string{"ImageL_Url", "ImageM_Url", "ImageS_Url"}
 	for _, name := range names {
-		for _, book := range *tbs {
+		for _, book := range *tb {
 			v := reflect.Indirect(reflect.ValueOf(book))
 			f := v.FieldByName(name)
 			imageUrl := f.String()
@@ -120,12 +120,12 @@ func (tbs *TitleBook) ImageURL() string {
 	return ""
 }
 
-func (tbs *TitleBook) DatePublish() string {
-	return (*tbs)[0].DatePublish
+func (tb *TitleBook) DatePublish() string {
+	return (*tb)[0].DatePublish
 }
 
-func (tbs *TitleBook) DatePublishTime() time.Time {
-	return (*tbs)[0].DatePublishTime()
+func (tb *TitleBook) DatePublishTime() time.Time {
+	return (*tb)[0].DatePublishTime()
 }
 
 func prio(publishType string) int {
@@ -139,8 +139,8 @@ func prio(publishType string) int {
 	}
 }
 
-func (tbs *TitleBook) sorte() {
-	books := *tbs
+func (tb *TitleBook) sort() {
+	books := *tb
 	sort.Slice(books, func(i, j int) bool {
 		return prio(books[i].PublishType) < prio(books[j].PublishType)
 	})
@@ -152,4 +152,18 @@ func CleanName(s string) string {
 	s = strings.Replace(s, "\n", "", -1)
 	s = strings.Replace(s, "\t", "", -1)
 	return s
+}
+
+type TitleBooks []*TitleBook
+
+func (tbs *TitleBooks) Add(tb *TitleBook) {
+	*tbs = append(*tbs, tb)
+}
+
+func (tbs TitleBooks) SorteByDate()  {
+	sort.Slice(tbs, func(i, j int) bool {
+		int1, _ := strconv.Atoi(tbs[i].DatePublish())
+		int2, _ := strconv.Atoi(tbs[j].DatePublish())
+		return int1 > int2
+	})
 }

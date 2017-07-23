@@ -8,6 +8,7 @@ import (
 	"github.com/akiraak/go-manga/db"
 	"github.com/akiraak/go-manga/elastic"
 	. "github.com/akiraak/go-manga/model"
+	"github.com/akiraak/go-manga/tools/userbooks"
 	"io"
 	"log"
 	"net/http"
@@ -408,6 +409,8 @@ func main() {
 	log.Printf("Book Info:%d", len(books))
 	updateDb(books)
 	updateTitleID(titleAsins)
+
+	userbooks.Run()
 
 	updateLog(fetchAsinCount, len(titleAsins), len(asins), len(books))
 

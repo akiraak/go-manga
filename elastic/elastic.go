@@ -83,44 +83,10 @@ func BulkAsinIndex(records []AsinRecord) int {
 	return updatedIndex
 }
 
-func SearchAsins(keyword string, offset int, limit int) ([]AsinRecord, int64) {
-	results := []AsinRecord{}
-	hitTotal := int64(0)
+func SearchAsins(keywords []string, offset int, limit int) (asins []string, hitTotal int64) {
 	ctx, client, err := newClient()
 	if err != nil {
-		return results, 0
-	}
-	query := elastic.NewMatchQuery("all_text", keyword).
-		Operator("and")
-	searchResult, err := client.Search().
-		Index("asins").
-		Type("asin").
-		Query(query).
-		Sort("date_publish", false).
-		From(offset).Size(limit).
-		Do(ctx)
-	if err == nil {
-		hitTotal = searchResult.Hits.TotalHits
-		if searchResult.Hits.TotalHits > 0 {
-			for _, hit := range searchResult.Hits.Hits {
-				var a AsinParam
-				err := json.Unmarshal(*hit.Source, &a)
-				if err != nil {
-					continue
-				}
-				results = append(results, AsinRecord{a, hit.Id})
-			}
-		}
-	}
-	return results, hitTotal
-}
-
-func SearchUserAsins(keywords []string, offset int, limit int) ([]AsinRecord, int64) {
-	results := []AsinRecord{}
-	hitTotal := int64(0)
-	ctx, client, err := newClient()
-	if err != nil {
-		return results, 0
+		return
 	}
 	matches := []elastic.Query{}
 	for _, keyword := range keywords {
@@ -144,9 +110,9 @@ func SearchUserAsins(keywords []string, offset int, limit int) ([]AsinRecord, in
 				if err != nil {
 					continue
 				}
-				results = append(results, AsinRecord{a, hit.Id})
+				asins = append(asins, hit.Id)
 			}
 		}
 	}
-	return results, hitTotal
+	return
 }

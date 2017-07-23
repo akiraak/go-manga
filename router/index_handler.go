@@ -10,7 +10,6 @@ import (
 	"github.com/labstack/echo"
 	"math"
 	"net/http"
-	"sort"
 	"strconv"
 	"time"
 )
@@ -122,13 +121,13 @@ func GetR18Handler(c echo.Context) error {
 		param)
 }
 
-func searchBooks(keyword string, offset int, limit int) ([]*TitleBook, int64, int) {
+func searchBooks(keyword string, offset int, limit int) (TitleBooks, int64, int) {
 	if len(keyword) > 1 {
-		asins, hitTotal := elastic.SearchAsins(keyword, offset, limit)
+		asins, hitTotal := elastic.SearchAsins([]string{keyword}, offset, limit)
 		books := booksWithAsins(asins)
 		return books, hitTotal, len(asins)
 	}
-	return []*TitleBook{}, 0, 0
+	return TitleBooks{}, 0, 0
 }
 
 func GetSearchHandler(c echo.Context) error {
@@ -136,7 +135,7 @@ func GetSearchHandler(c echo.Context) error {
 	page := PageQuery(c)
 	type Param struct {
 		BaseParam
-		TitleBooks	[]*TitleBook
+		TitleBooks	TitleBooks
 		Page		pagination.Page
 	}
 	bookMax := 10000
@@ -172,92 +171,22 @@ func GetSearchHandler(c echo.Context) error {
 		param)
 }
 
-func booksWithAsins(asins []elastic.AsinRecord) []*TitleBook {
-	ids := make([]string, len(asins))
-	for _, asin := range asins {
-		ids = append(ids, asin.Asin)
-	}
-
+func booksWithAsins(asins []string) TitleBooks {
 	books := []Book{}
-	db.ORM.Where("asin IN (?)", ids).Find(&books)
+	db.ORM.Where("asin IN (?)", asins).Find(&books)
 	tbooks := titleGroupBooks(books)
-	sortedBooks := []*TitleBook{}
+	sortedBooks := TitleBooks{}
 	for _, tbook := range tbooks {
-		sortedBooks = append(sortedBooks, tbook)
+		sortedBooks.Add(tbook)
 	}
-	sort.Slice(sortedBooks, func(i, j int) bool {
-		int1, _ := strconv.Atoi(sortedBooks[i].DatePublish())
-		int2, _ := strconv.Atoi(sortedBooks[j].DatePublish())
-		return int1 > int2
-	})
+	sortedBooks.SorteByDate()
 	return sortedBooks
 }
 
-func searchUserBooks(keywords []string, offset int, limit int) ([]*TitleBook, int64, int) {
-	if len(keywords) > 1 {
-		asins, hitTotal := elastic.SearchUserAsins(keywords, offset, limit)
-		books := booksWithAsins(asins)
-		return books, hitTotal, len(asins)
-	}
-	return []*TitleBook{}, 0, 0
-}
-
 func GetDeveloperHandler(c echo.Context) error {
-	keywords := []string{
-		"HUNTER×HUNTER",
-		"ヴィンランド・サガ",
-		"落日のパトス",
-		"狼と香辛料",
-		"食戟のソーマ",
-		"小説家になる方法",
-		"重版出来",
-		"山と食欲と私",
-		"釣り船御前丸",
-		"木根さんの1人でキネマ",
-		"インベスターZ",
-		"波よ聞いてくれ",
-		"食戟のソーマ",
-		"アルキメデスの大戦",
-		"ふらいんぐうぃっち",
-		"亜人",
-		"宇宙兄弟",
-		"BLUE GIANT",
-		"ベイビーステップ",
-		"ハイスコアガール",
-		"蛇蔵",
-		"僕らはみんな河合荘",
-		"のの湯",
-		"百姓貴族",
-		"ドロヘドロ",
-		"からかい上手の高木さん",
-		"乙嫁語り",
-		"ばらかもん",
-		"君に届け",
-		"のんのんびより",
-		"海街diary",
-		"後遺症ラジオ",
-		"ワンパンマン",
-		"いぶり暮らし",
-		"ヒストリエ",
-		"つれづれダイアリー",
-		"ダンジョン飯",
-		"メイドインアビス",
-		"ドメスティックな彼女",
-		"東京喰種",
-		"進撃の巨人",
-		"アオバ自転車店",
-		"ちはやふる",
-		"甘々と稲妻",
-		"ろんぐらいだぁす",
-		"はたらく細胞",
-		"猫のお寺の知恩さん",
-		"ウーパ",
-		"ゆるキャン",
-		"平方イコルスン",
-	}
 	type Param struct {
 		BaseParam
-		TitleBooks	[]*TitleBook
+		TitleBooks	TitleBooks
 		Tags		[]string
 		Page		pagination.Page
 	}
@@ -271,11 +200,31 @@ func GetDeveloperHandler(c echo.Context) error {
 		page = pageMax
 	}
 	offset := limit * (page - 1)
-	titleBooks, hitTotal, asinsCount := searchUserBooks(keywords, offset, limit)
-	param.TitleBooks = titleBooks
-	param.Tags = keywords
 
-	showPageMax := int(math.Ceil(float64(hitTotal) / float64(limit)))
+	books := []Book{}
+	userId := 1
+	asinsCount := 0
+	db.ORM.
+		Table("user_books").
+		Where("user_id = ?", userId).
+		Count(&asinsCount)
+	db.ORM.
+		Joins("left join user_books on user_books.book_id = books.id").
+		Where("user_books.user_id = ?", userId).
+		Order("books.date_publish desc").
+		Offset(offset).
+		Limit(limit).
+		Find(&books)
+
+	tbooks := titleGroupBooks(books)
+	sortedBooks := TitleBooks{}
+	for _, tbook := range tbooks {
+		sortedBooks.Add(tbook)
+	}
+	sortedBooks.SorteByDate()
+	param.TitleBooks = sortedBooks
+
+	showPageMax := int(math.Ceil(float64(asinsCount) / float64(limit)))
 	if showPageMax > pageMax {
 		showPageMax = pageMax
 	}
@@ -283,9 +232,9 @@ func GetDeveloperHandler(c echo.Context) error {
 	param.Page = pagination.CreatePage(
 		page,
 		showPageMax,
-		int(hitTotal),
+		asinsCount,
 		offset + 1,
-		offset + asinsCount)
+		offset + len(param.TitleBooks))
 
 	return web.RenderTemplate(
 		c,
