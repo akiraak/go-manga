@@ -63,7 +63,7 @@ func GetAdminPublisherHandler(c echo.Context) error {
 func GetAdminAddUserHandler(c echo.Context) error {
 	user := User{}
 	if db.ORM.First(&user).RecordNotFound() {
-		user.Name = "開発者"
+		user.Name = "akiraak"
 		db.ORM.Create(&user)
 		return c.String(http.StatusOK, "create")
 	}
