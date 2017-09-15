@@ -39,7 +39,7 @@ func url2Asin(url string) (string, error) {
 	if len(result) > 0 {
 		return result[0][1], nil
 	}
-	return "", errors.New("URL does not include asin.")
+	return "", errors.New("URL does not include asin. " + url)
 }
 
 type Asins []string
@@ -344,7 +344,8 @@ func initLog() *os.File {
 func updateTitleID(titleAsins []*TitleAsin) {
 	for _, titleAsin := range titleAsins {
 		if len(*titleAsin) == 0 {
-			log.Panic("updateTitleID(): len(*titleAsin) == 0")
+			//log.Panic("updateTitleID(): len(*titleAsin) == 0")
+			continue
 		}
 
 		// Search existing title_id
