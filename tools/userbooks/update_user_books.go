@@ -64,6 +64,7 @@ func userAsins(userId int64) []string {
 		"銀の匙",
 		"味噌汁でカンパイ",
 		"放課後さいころ倶楽部",
+		"ふしぎの国のバード",
 	}
 	asins, _ := elastic.SearchAsins(keywords, 0, 10000)
 	return asins
