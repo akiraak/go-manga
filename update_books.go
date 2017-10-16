@@ -22,7 +22,6 @@ import (
 const updateBookInterval = time.Duration(12) * time.Hour
 var url2AsinReg = regexp.MustCompile(`/dp/(\w+)`)
 
-
 func httpGet(url string) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
@@ -80,6 +79,8 @@ func getUrlAsins(url string) ([]*TitleAsin, error) {
 					asin, err := url2Asin(url)
 					if err == nil {
 						asins = append(asins, asin)
+					} else {
+						fmt.Println("ERROR:", err)
 					}
 				}
 			})
