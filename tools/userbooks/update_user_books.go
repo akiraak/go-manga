@@ -66,6 +66,10 @@ func userAsins(userId int64) []string {
 		"放課後さいころ倶楽部",
 		"ふしぎの国のバード",
 		"レイリ",
+		"3月のライオン",
+		"コウノドリ",
+		"南鎌倉高校女子自転車部",
+		"あげくの果てのカノン",
 	}
 	asins, _ := elastic.SearchAsins(keywords, 0, 10000)
 	return asins
