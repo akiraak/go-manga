@@ -72,6 +72,10 @@ func userAsins(userId int64) []string {
 		"あげくの果てのカノン",
 		"徒然チルドレン",
 		"ぐらんぶる",
+		"ドラゴン桜",
+		"おひ釣りさま",
+		"放課後ていぼう日誌",
+		"MISS CAST",
 	}
 	asins, _ := elastic.SearchAsins(keywords, 0, 10000)
 	return asins
